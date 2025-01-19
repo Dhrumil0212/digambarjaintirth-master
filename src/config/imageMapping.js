@@ -1891,8 +1891,8 @@ export const imageMapping = {
     image:
       "https://img.freepik.com/premium-photo/tirupati-balaji-temple-andhra-pradesh-richest-hindu-temple-dedicated-lord-seva_921026-37064.jpg",
     "Kulcharam Atishaykshetra": [
-      "https://lh5.googleusercontent.com/p/AF1QipOntBh7utiHU0SPtcEyIQ164iKz47CFNqSdHT2d",
-      "https://lh5.googleusercontent.com/p/AF1QipNcx18m8ILAH50hiKkJl0t7vYXagtCpt3hT6hLv",
+      "https://lh5.googleusercontent.com/p/AF1QipNH0pWEQG3CkfpKjfUwxFLoesgNmjM-eWRWa4B0=w1000-h1000-k-no",
+      "https://lh5.googleusercontent.com/p/AF1QipOCg3MVyAeRCFwmHI9czBqdOBF41a6arHmMErlh=s762",,"https://lh5.googleusercontent.com/p/AF1QipObJZsW5jENnwtqBXgVSWdVovD57XIRejomNTey=s1016"
     ],
   },
   Assam: {
