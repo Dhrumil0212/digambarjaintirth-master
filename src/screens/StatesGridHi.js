@@ -1,23 +1,15 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
-import { getStates } from "../services/getStateHIN"; // Fetch state data
+import { useLanguage } from "../services/LanguageContext"; // Import language context
+import { getStates } from "../services/getStateHIN"; // Fetch Hindi state data
 import { imageMapping } from "../config/imageMappingHi"; // Import image mapping
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 
-const StatesGrid = () => {
+const StatesGridHi = () => {
+  const { language, toggleLanguage } = useLanguage(); // Access language context
   const [states, setStates] = useState([]);
   const navigation = useNavigation();
 
@@ -57,11 +49,30 @@ const StatesGrid = () => {
     </TouchableOpacity>
   );
 
+  const handleLanguageToggle = () => {
+    toggleLanguage();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: language === 'en' ? 'StatesGridHi' : 'StatesGrid' }],
+    });
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
       <SafeAreaView style={styles.safeAreaView}>
         <Text style={styles.heading}>भारत</Text>
+
+        {/* Language Toggle Button */}
+        <TouchableOpacity
+          style={styles.toggleButton}
+          onPress={handleLanguageToggle} // Use the updated toggle function
+        >
+          <Text style={styles.toggleButtonText}>
+            {language === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+          </Text>
+        </TouchableOpacity>
+
         <FlatList
           data={states} // Use the sorted states state
           renderItem={renderStateCard}
@@ -91,6 +102,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: hp(2),
     color: "#343a40",
+  },
+  toggleButton: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  toggleButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
   grid: {
     alignItems: "center",
@@ -147,4 +169,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StatesGrid;
+export default StatesGridHi;
