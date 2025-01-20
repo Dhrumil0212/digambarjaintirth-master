@@ -13,6 +13,9 @@ const StatesGridHi = () => {
   const [states, setStates] = useState([]);
   const navigation = useNavigation();
 
+  console.log(states);
+  
+
   useEffect(() => {
     getStates().then((statesData) => {
       const sortedStates = statesData.sort((a, b) =>

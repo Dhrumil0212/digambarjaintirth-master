@@ -10,7 +10,9 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
-    paddingHorizontal: wp(4),
+    paddingHorizontal: wp(4),    
+    paddingTop: hp(4), // Add padding to push everything downwards
+
   },
   heading: {
     fontSize: wp(6),

@@ -1184,15 +1184,7 @@ export const imageMapping = {
   "Tamil Nadu": {
     image:
       "https://as2.ftcdn.net/jpg/05/70/04/45/1000_F_570044597_GMadjBtxEEQ4oIdKWzg6SABHrFMqWf21.jpg",
-    "Ahikhetra Parshvanath Atishaykshetra": [
-      "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
-      "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
-      "https://lh5.googleusercontent.com/p/AF1QipO5jXvxxmsIuJT9nqqgtjBwGCWh1HwpPLrhTXxn",
-      "https://lh5.googleusercontent.com/p/AF1QipNo5udiYE_Un3Sevwfsd6MQCuNE3B2vuqmy11up",
-      "https://lh5.googleusercontent.com/p/AF1QipOZrsTPsTDrdnf5HJcMZ6tRmanrXGKCMGLG2hio",
-      "https://lh5.googleusercontent.com/p/AF1QipOhZQtkgG62lDnRWBSIwcDLy76D8auccxhzSydO",
-      "https://lh5.googleusercontent.com/p/AF1QipMTSVNUvgigoCrn4nXlNMpz0wwiaLpWMgIU-qyS",
-    ],
+   
     "Melchitamur Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipPYKpldh6dLzdupcGRkRnFqRxmmQb6E9AnQzugY",
       "https://lh5.googleusercontent.com/p/AF1QipN4XbefzM02jR8fvovduczIdnSDS_QkUUHJ_3QJ",
@@ -1214,6 +1206,15 @@ export const imageMapping = {
   "Uttar Pradesh": {
     image:
       "https://as1.ftcdn.net/v2/jpg/01/30/86/06/1000_F_130860698_oBQfdpO4kdQ6EnMtvnCn90fOrClUvBuZ.jpg",
+      "Ahikhetra Parshvanath Atishaykshetra": [
+        "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
+        "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
+        "https://lh5.googleusercontent.com/p/AF1QipO5jXvxxmsIuJT9nqqgtjBwGCWh1HwpPLrhTXxn",
+        "https://lh5.googleusercontent.com/p/AF1QipNo5udiYE_Un3Sevwfsd6MQCuNE3B2vuqmy11up",
+        "https://lh5.googleusercontent.com/p/AF1QipOZrsTPsTDrdnf5HJcMZ6tRmanrXGKCMGLG2hio",
+        "https://lh5.googleusercontent.com/p/AF1QipOhZQtkgG62lDnRWBSIwcDLy76D8auccxhzSydO",
+        "https://lh5.googleusercontent.com/p/AF1QipMTSVNUvgigoCrn4nXlNMpz0wwiaLpWMgIU-qyS",
+      ],
     "Badagaon Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
       "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
