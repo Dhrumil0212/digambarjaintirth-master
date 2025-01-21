@@ -72,7 +72,8 @@ const StatesGridHi = () => {
           onPress={handleLanguageToggle} // Use the updated toggle function
         >
           <Text style={styles.toggleButtonText}>
-            {language === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+            {/* {language === 'en' ? 'Switch to Hindi' : 'Switch to English'} */}
+            {language === 'en' ? 'HI' : 'EN'}
           </Text>
         </TouchableOpacity>
 
@@ -107,11 +108,14 @@ const styles = StyleSheet.create({
     color: "#343a40",
   },
   toggleButton: {
+    position: 'absolute',
+    top: hp(4),
+    right: wp(4),
     backgroundColor: "#007bff",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
-    marginVertical: 20,
+    zIndex: 1,
   },
   toggleButtonText: {
     color: "#fff",
