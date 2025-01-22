@@ -18,22 +18,22 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import finalData from "../data/final.json";
-import NetInfo from "@react-native-community/netinfo"; // Import NetInfo to check internet status
+import NetInfo from "@react-native-community/netinfo"; // इंटरनेट कनेक्टिविटी चेक करने के लिए
 
 const PlaceDetails = ({ route }) => {
   const { placeName, stateName } = route.params;
 
   const [place, setPlace] = useState(null);
   const [images, setImages] = useState([]);
-  const [isConnected, setIsConnected] = useState(true); // Track internet connection status
+  const [isConnected, setIsConnected] = useState(true); // इंटरनेट कनेक्शन स्थिति ट्रैक करना
 
   useEffect(() => {
-    // Check network status
+    // नेटवर्क स्थिति चेक करें
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
     });
 
-    // Fetch place data and images
+    // स्थान डेटा और चित्र लोड करें
     getPlaceByName(placeName)
       .then((placeData) => {
         setPlace(placeData);
@@ -41,7 +41,7 @@ const PlaceDetails = ({ route }) => {
       })
       .catch(() => setPlace({ error: true }));
 
-    return () => unsubscribe(); // Unsubscribe from NetInfo on cleanup
+    return () => unsubscribe(); // साफ करने के लिए NetInfo से अनसब्सक्राइब करें
   }, [placeName, stateName]);
 
   const loadImages = (state, place) => {
@@ -90,7 +90,7 @@ const PlaceDetails = ({ route }) => {
   };
 
   const handleImageError = (index) => {
-    console.log(`Failed to load image at index ${index}`);
+    console.log(`चित्र लोड करने में विफल रहा है, इंडेक्स ${index}`);
     setImages((prevImages) => {
       const newImages = [...prevImages];
       newImages[index] = null;
@@ -102,9 +102,9 @@ const PlaceDetails = ({ route }) => {
     if (place.latitude && place.longitude) {
       const mapUrl = `https://www.google.com/maps?q=${place.latitude},${place.longitude}`;
       
-      // Open the map in the browser or Google Maps app
+      // ब्राउज़र या गूगल मैप्स ऐप में मानचित्र खोलें
       Linking.openURL(mapUrl).catch((err) => {
-        console.error("Error opening map:", err);
+        console.error("मानचित्र खोलने में त्रुटि:", err);
       });
     }
   };
@@ -113,7 +113,7 @@ const PlaceDetails = ({ route }) => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#343a40" />
-        <Text style={styles.loadingText}>Loading place details...</Text>
+        <Text style={styles.loadingText}>स्थान विवरण लोड हो रहा है...</Text>
       </View>
     );
   }
@@ -122,7 +122,7 @@ const PlaceDetails = ({ route }) => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>
-          Failed to load place details. Please try again later.
+          स्थान विवरण लोड करने में विफल। कृपया बाद में पुनः प्रयास करें।
         </Text>
       </View>
     );
@@ -132,7 +132,7 @@ const PlaceDetails = ({ route }) => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>
-          No internet connection. Please connect to the internet to view images.
+          इंटरनेट कनेक्शन नहीं है। कृपया चित्र देखने के लिए इंटरनेट से कनेक्ट करें।
         </Text>
       </View>
     );
@@ -142,39 +142,39 @@ const PlaceDetails = ({ route }) => {
     <ScrollView style={styles.container}>
       <Text style={styles.heading}>{place["Naam"]}</Text>
 
-      {/* Image Slider */}
+      {/* चित्र स्लाइडर */}
       <ScrollView horizontal style={styles.imageSlider}>
         {images.length > 0 ? (
           images.map((img, index) =>
             img ? (
               <Image
                 key={index}
-                source={{ uri: img }} // Use uri to load image from URL
+                source={{ uri: img }} // चित्र को URL से लोड करें
                 style={styles.image}
                 onError={() => handleImageError(index)}
               />
             ) : (
               <Text key={index} style={styles.noImageText}>
-                Image not available
+                चित्र उपलब्ध नहीं है
               </Text>
             )
           )
         ) : (
-          <Text style={styles.noImageText}>No images available</Text>
+          <Text style={styles.noImageText}>कोई चित्र उपलब्ध नहीं है</Text>
         )}
       </ScrollView>
 
-      {/* Info Container */}
+      {/* जानकारी कंटेनर */}
       <View style={styles.infoContainer}>
         {renderFields(place["Naam"])}
 
-        {/* Map Button */}
+        {/* मानचित्र बटन */}
         {place.latitude && place.longitude && (
           <TouchableOpacity
             style={styles.mapContainer}
             onPress={handleMapPress}
           >
-            <Text style={styles.mapText}>Open in Google Maps</Text>
+            <Text style={styles.mapText}>गूगल मैप्स में खोलें</Text>
           </TouchableOpacity>
         )}
       </View>

@@ -7,52 +7,70 @@ import {
   ActivityIndicator,
   Linking,
   TouchableOpacity,
-  Platform,
 } from "react-native";
 import { getPlaceByName } from "../services/getStateENG";
-import { imageMapping } from "../config/imageMapping";
-import { styles } from "../styles/placeStyles";
-import { stateMapping } from "../config/stateMap";
+import { imageMapping } from "../config/imageMapping"; // Import image mapping
+import { styles } from "../styles/placeStyles"; // Assuming styles are defined here
+import NetInfo from "@react-native-community/netinfo"; // To check internet connectivity
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import finalData from "../data/final.json";
-import NetInfo from "@react-native-community/netinfo"; // Import NetInfo to check internet status
+import finalData from "../data/final.json"; // Assuming this holds some place-related data
 
 const PlaceDetails = ({ route }) => {
-  const { placeName, stateName } = route.params;
+  const { placeName } = route.params; // Only extract placeName from params
 
   const [place, setPlace] = useState(null);
   const [images, setImages] = useState([]);
   const [isConnected, setIsConnected] = useState(true); // Track internet connection status
 
   useEffect(() => {
-    // Check network status
+    // Check network connectivity
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
     });
 
-    // Fetch place data and images
-    getPlaceByName(placeName)
-      .then((placeData) => {
-        setPlace(placeData);
-        loadImages(stateName, placeName);
-      })
-      .catch(() => setPlace({ error: true }));
+    // Fetch place details and images based on placeName only
+    if (placeName) {
+      // First, fetch the place details
+      getPlaceByName(placeName)
+        .then((placeData) => {
+          setPlace(placeData);
+          loadImages(placeName); // Load images for the place when data is fetched
+        })
+        .catch(() => setPlace({ error: true }));
 
-    return () => unsubscribe(); // Unsubscribe from NetInfo on cleanup
-  }, [placeName, stateName]);
+      // Ensure the images are loaded correctly for the place
+      loadImages(placeName); // Added here to ensure images are loaded correctly
+    }
 
-  const loadImages = (state, place) => {
-    if (!state || !imageMapping[state]) return;
+    return () => unsubscribe(); // Clean up the network listener
+  }, [placeName]); // Depend on placeName to reload data when params change
 
-    const placeImages = imageMapping[state]?.[place];
-    if (placeImages?.length > 0) {
-      setImages(placeImages);
+  // Load images for the place from imageMapping
+  const loadImages = (place) => {
+    console.log("Searching for images for place:", place);
+
+    // Iterate over imageMapping and look for the place in any state
+    let foundImages = [];
+    Object.keys(imageMapping).forEach((state) => {
+      // If images are available for this place, add them to foundImages
+      if (imageMapping[state][place]) {
+        foundImages = imageMapping[state][place];
+      }
+    });
+
+    if (foundImages.length > 0) {
+      console.log("Found images for place:", foundImages);
+      setImages(foundImages); // Set the images for this place
+    } else {
+      console.log("No images found for place:", place);
+      setImages([]); // Ensure we clear any images if not found
     }
   };
 
+  // Render fields for additional place-related data from finalData
   const renderFields = (placeName) => {
     const placeData = finalData.Sheet1.filter(
       (item) => item["Name teerth"] === placeName
@@ -89,6 +107,7 @@ const PlaceDetails = ({ route }) => {
     ));
   };
 
+  // Handle error in loading image (if the image fails to load)
   const handleImageError = (index) => {
     console.log(`Failed to load image at index ${index}`);
     setImages((prevImages) => {
@@ -98,17 +117,17 @@ const PlaceDetails = ({ route }) => {
     });
   };
 
+  // Handle opening place location in Google Maps
   const handleMapPress = () => {
     if (place.latitude && place.longitude) {
       const mapUrl = `https://www.google.com/maps?q=${place.latitude},${place.longitude}`;
-      
-      // Open the map in the browser or Google Maps app
       Linking.openURL(mapUrl).catch((err) => {
         console.error("Error opening map:", err);
       });
     }
   };
 
+  // Show loading screen while fetching data
   if (!place) {
     return (
       <View style={styles.loadingContainer}>
@@ -118,6 +137,7 @@ const PlaceDetails = ({ route }) => {
     );
   }
 
+  // Error handling if place data could not be fetched
   if (place.error) {
     return (
       <View style={styles.errorContainer}>
@@ -128,6 +148,7 @@ const PlaceDetails = ({ route }) => {
     );
   }
 
+  // Show message if there's no internet connection
   if (!isConnected) {
     return (
       <View style={styles.errorContainer}>
@@ -149,9 +170,9 @@ const PlaceDetails = ({ route }) => {
             img ? (
               <Image
                 key={index}
-                source={{ uri: img }} // Use uri to load image from URL
+                source={{ uri: img }} // Display image from the URL
                 style={styles.image}
-                onError={() => handleImageError(index)}
+                onError={() => handleImageError(index)} // Handle image load failure
               />
             ) : (
               <Text key={index} style={styles.noImageText}>

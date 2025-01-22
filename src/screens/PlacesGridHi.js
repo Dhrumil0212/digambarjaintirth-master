@@ -1,26 +1,17 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-} from "react-native";
+import { View, Text, Image, TouchableOpacity, FlatList, TextInput, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import { getPlacesByState } from "../services/getStateHIN"; // Fetch places for the state
 import { imageMapping } from "../config/imageMappingHi"; // Import image mapping
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { HeartIcon } from "react-native-heroicons/solid";
 
 const PlacesGrid = ({ route }) => {
   const { stateName } = route.params; // Get the state name passed via route
   const [places, setPlaces] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState([]);
   const navigation = useNavigation();
 
@@ -28,15 +19,11 @@ const PlacesGrid = ({ route }) => {
     getPlacesByState(stateName).then((placesData) => {
       if (Array.isArray(placesData) && placesData.length > 0) {
         const transformedData = placesData.map((placeName) => {
-          // Decode the place name to handle '%20' as a space
           const decodedPlaceName = decodeURIComponent(placeName);
-          // Get the image for the decoded place name
-          const placeImage =
-            imageMapping[stateName]?.[decodedPlaceName]?.[0] || null;
-
+          const placeImage = imageMapping[stateName]?.[decodedPlaceName]?.[0] || null;
           return {
             "Naam": decodedPlaceName,
-            image: placeImage ? decodeURIComponent(placeImage) : null, // Decode the image URL if necessary
+            image: placeImage ? decodeURIComponent(placeImage) : null,
           };
         });
 
@@ -55,6 +42,10 @@ const PlacesGrid = ({ route }) => {
     });
   }, [stateName]);
 
+  const filteredPlaces = places.filter(place =>
+    place["Naam"].toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const toggleFavorite = (placeName) => {
     setFavorites((prev) =>
       prev.includes(placeName)
@@ -69,7 +60,7 @@ const PlacesGrid = ({ route }) => {
       onPress={() =>
         navigation.navigate("PlaceDetailsHi", {
           placeName: item["Naam"],
-          stateName: stateName, // Pass stateName along with placeName
+          stateName: stateName,
         })
       }
     >
@@ -82,7 +73,7 @@ const PlacesGrid = ({ route }) => {
       )}
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item["Naam"]}</Text>
-        <TouchableOpacity onPress={() => toggleFavorite(item["Naam"])}>
+        <TouchableOpacity onPress={() => toggleFavorite(item["Naam"])} style={styles.favoriteButton}>
           <HeartIcon
             size={24}
             color={favorites.includes(item["Naam"]) ? "red" : "gray"}
@@ -92,8 +83,7 @@ const PlacesGrid = ({ route }) => {
     </TouchableOpacity>
   );
 
-  // Sort places to display favorites at the top
-  const sortedPlaces = places.sort((a, b) => {
+  const sortedPlaces = filteredPlaces.sort((a, b) => {
     const isAFavorite = favorites.includes(a["Naam"]);
     const isBFavorite = favorites.includes(b["Naam"]);
     if (isAFavorite && !isBFavorite) {
@@ -106,20 +96,43 @@ const PlacesGrid = ({ route }) => {
   });
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <StatusBar style="dark" />
       <SafeAreaView style={styles.safeAreaView}>
-        <Text style={styles.heading}>{stateName} तीर्थक्षेत्र</Text>
-        <FlatList
-          data={sortedPlaces}
-          renderItem={renderPlaceCard}
-          numColumns={2}
-          keyExtractor={(item) => item["Naam"]}
-          contentContainerStyle={styles.grid}
-          style={styles.flatList}
-        />
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={styles.content}>
+            <Text style={styles.heading}>{stateName} तीर्थक्षेत्र</Text>
+
+            {/* Search Bar */}
+            <TextInput
+              style={styles.searchBar}
+              placeholder="तीर्थक्षेत्र खोजें"
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+
+            {/* List */}
+            <View style={styles.listContainer}>
+              {/* If no results, show a message */}
+              {filteredPlaces.length === 0 && searchQuery.length > 0 ? (
+                <Text style={styles.noResults}>No places found</Text>
+              ) : (
+                <FlatList
+                  data={sortedPlaces}
+                  renderItem={renderPlaceCard}
+                  numColumns={2}
+                  keyExtractor={(item) => item["Naam"]}
+                  contentContainerStyle={styles.grid}
+                />
+              )}
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
       </SafeAreaView>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -132,6 +145,9 @@ const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
   },
+  content: {
+    flex: 1,
+  },
   heading: {
     fontSize: wp(6),
     fontWeight: "bold",
@@ -142,10 +158,7 @@ const styles = StyleSheet.create({
   grid: {
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    paddingBottom: hp(2),
-  },
-  flatList: {
-    flexGrow: 1,
+    marginTop: hp(2),
   },
   cardContainer: {
     backgroundColor: "#fff",
@@ -191,6 +204,29 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: wp(2),
     paddingBottom: hp(0.5),
+  },
+  favoriteButton: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  searchBar: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginVertical: hp(2),
+    fontSize: wp(4),
+  },
+  noResults: {
+    fontSize: wp(4),
+    color: "#6c757d",
+    textAlign: "center",
+    marginTop: hp(2),
+  },
+  listContainer: {
+    flex: 1,
+    marginTop: hp(2),
   },
 });
 
