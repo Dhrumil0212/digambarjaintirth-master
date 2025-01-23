@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f9fa",
     paddingHorizontal: wp(4),
+    
   },
   safeAreaView: {
     flex: 1,
@@ -158,7 +159,11 @@ const styles = StyleSheet.create({
   grid: {
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    marginTop: hp(2),
+    // marginTop: hp(1),
+    // marginBottom: hp(50),
+    paddingBottom: hp(2),
+
+
   },
   cardContainer: {
     backgroundColor: "#fff",
@@ -171,6 +176,8 @@ const styles = StyleSheet.create({
     shadowRadius: wp(2),
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+    marginBottom:hp(1)
+    
   },
   cardImage: {
     width: "100%",
@@ -192,8 +199,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingHorizontal: wp(2),
-    paddingVertical: hp(1),
+    // paddingHorizontal: wp(2),
+    // paddingVertical: hp(1),
+    padding: wp(2),
+
+    
   },
   cardTitle: {
     fontSize: wp(4),
@@ -204,6 +214,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: wp(2),
     paddingBottom: hp(0.5),
+
   },
   favoriteButton: {
     justifyContent: "center",
@@ -226,7 +237,8 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    marginTop: hp(2),
+    marginTop: hp(1),
+    marginBottom:wp(2)
   },
 });
 

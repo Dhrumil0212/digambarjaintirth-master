@@ -1642,7 +1642,7 @@ export const imageMapping = {
            ]
         },
         "बिहार":{
-           "image":"https://img.freepik.com/premium-photo/poster-featuring-bihar-showcase-its-culture-landmarks-heritage_1161356-245847.jpg?w=740",
+           "image":"https://www.jagran.com/_next/image?url=https%3A%2F%2Fwww.jagranimages.com%2Fimages%2Fnewimg%2F25092022%2F25_09_2022-jain_mandir_bgp_23096624_1131934.webp&w=2048&q=75",
            "आरा अतिशयक्षेत्र":[
               "https://lh5.googleusercontent.com/p/AF1QipPGbPlMq1Wj60G30KEtncpyb2OBMCgWb0qQnXw2",
               "https://lh5.googleusercontent.com/p/AF1QipM_2yrBXL-YwtEBNmoHYpu81FXrhPN1GXoJG-P2",
