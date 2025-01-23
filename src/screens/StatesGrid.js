@@ -133,7 +133,7 @@ const StatesGrid = () => {
         {/* Search Bar */}
         <TextInput
           style={styles.searchInput}
-          placeholder={language === 'en' ? "Search States or Places" : "राज्य या स्थान खोजें"}
+          placeholder={language === 'en' ? "Search" : "राज्य या स्थान खोजें"}
           value={searchQuery}
           onChangeText={handleSearch}
         />

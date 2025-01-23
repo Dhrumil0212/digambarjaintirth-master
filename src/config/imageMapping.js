@@ -1,7 +1,7 @@
 export const imageMapping = {
   "Madhya Pradesh": {
     image:
-      "https://as1.ftcdn.net/v2/jpg/03/11/62/62/1000_F_311626229_NTRWR4S8KEL66h2EFeKmuNIespDlVIIi.jpg",
+      "https://thedesigngesture.com/wp-content/uploads/2024/08/Designer-2024-08-30T162807.414-900x900.jpeg.webp",
     "Aahuji Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipPyN2uTU1rKbwvNk_8UiJfjUDpQoeEWRjNp8qE",
       "https://lh5.googleusercontent.com/p/AF1QipOpyFz--JI62QoiaevEGRCTvz0DdUuS8l60doJr",
@@ -643,7 +643,7 @@ export const imageMapping = {
     ],
   },
   Maharashtra: {
-    image: "https://i.imgur.com/3cPh81R.png",
+    image: "https://scontent.famd4-1.fna.fbcdn.net/v/t39.30808-6/469452003_8745597708864951_6652288818282273888_n.jpg?stp=dst-jpg_s640x640_tt6&_nc_cat=100&ccb=1-7&_nc_sid=3a1ebe&_nc_ohc=tE-_IACXSc4Q7kNvgHm9jX-&_nc_zt=23&_nc_ht=scontent.famd4-1.fna&_nc_gid=AKq8i4U6vDG4tTdpWDoSy-R&oh=00_AYDcd_aJFVRdKL720kTknblMw-KgVXvzoRrOt4IE2TLMMw&oe=67974334",
     "Aasegaon Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipOLJNd5xZfC4c9uJXqzMA0r2WpjPfsYbZXwhTvx",
       "https://lh5.googleusercontent.com/p/AF1QipNndKu6Vax046rrL4h_Krq8ZZ_K4N0Yoo2galUN",
@@ -787,7 +787,7 @@ export const imageMapping = {
   },
   Karnataka: {
     image:
-      "https://img.freepik.com/premium-photo/vidhana-soudha-bangalore-karnataka-india_1033579-182521.jpg?w=900",
+      "https://shravanabelagola.org/wp-content/uploads/slider/cache/b529d9261faccca145119b6e2462b26a/IMG_E7990-1-scaled-e1717667142695.jpg",
     "Harsur Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipOWgfIbxAnBPGL6UQ3zYAESUzzxxokQ03TH1FaC",
       "https://lh5.googleusercontent.com/p/AF1QipOWgfIbxAnBPGL6UQ3zYAESUzzxxokQ03TH1FaC",
@@ -908,7 +908,7 @@ export const imageMapping = {
   },
   Rajasthan: {
     image:
-      "https://as1.ftcdn.net/jpg/06/65/48/08/1000_F_665480883_tnOQGChYos2D9Zl0pDeb9E0tDzjSFMrA.jpg",
+      "https://lh5.googleusercontent.com/p/AF1QipN9nnDSzVT3HnAeksijFWqJRHCROn-TRoR95euD=s1024",
     "Adinda Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipMicOtWN7KHWU-L8LuZSFmShEw6c61MLcdrSnrz",
       "https://lh5.googleusercontent.com/p/AF1QipMa-EiUG0cvXAQXVj3z3k6dqF1kUp36ux07HAO5",
@@ -1205,7 +1205,7 @@ export const imageMapping = {
   },
   "Uttar Pradesh": {
     image:
-      "https://as1.ftcdn.net/v2/jpg/01/30/86/06/1000_F_130860698_oBQfdpO4kdQ6EnMtvnCn90fOrClUvBuZ.jpg",
+      "https://instagram.famd4-1.fna.fbcdn.net/v/t51.29350-15/401888443_337882778829196_4203148347667001970_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xNDQweDE4MDAuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlIn0&_nc_ht=instagram.famd4-1.fna.fbcdn.net&_nc_cat=104&_nc_ohc=-xsZGjeVC3kQ7kNvgGfUTrp&_nc_gid=78d5b0d6a58d46c1b002b76aa4a0422e&edm=APs17CUBAAAA&ccb=7-5&ig_cache_key=MzIzNjQ4MTI5MzEzNzg0NjkyMg%3D%3D.3-ccb7-5&oh=00_AYCpeTjQTzAQYpa0RFNYOocoXcP9DJFYO1qI4l-OYPOWBw&oe=6796F826&_nc_sid=10d13b",
       "Ahikhetra Parshvanath Atishaykshetra": [
         "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
         "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
@@ -1714,7 +1714,7 @@ export const imageMapping = {
     ],
   },
   Haryana: {
-    image: "https://i.imgur.com/H7M7E7p.png",
+    image: "https://www.jainsthal.com/assets/images/place/banner/1698641923-punyodaya-tirth-kshetra-hansi-01.jpg",
     "Hansi Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipOSZVkxbKnd48HdHrEFk76WMGl8cojaToZ6NbE0",
       "https://lh5.googleusercontent.com/p/AF1QipOSZVkxbKnd48HdHrEFk76WMGl8cojaToZ6NbE0",
@@ -1765,7 +1765,7 @@ export const imageMapping = {
   },
   Uttarakhand: {
     image:
-      "https://as2.ftcdn.net/jpg/05/66/94/05/1000_F_566940511_UT7MirDjqlJvJkjYD8DkApSymx13IWEK.jpg",
+      "https://rishikeshdaytour.com/blog/wp-content/uploads/2025/01/Char-Dham-Hindu-Temple.jpg",
     "Ashtapad Kailash Badrinath Siddhakshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipMBuzOLSKkAlEzkSSRCkiujZYHGxXk3eXZ-MaEA",
       "https://lh5.googleusercontent.com/p/AF1QipPhMtnLe-_CfmNMoWKGHfneSzTwvVvfDpiwYtMs",
@@ -1779,7 +1779,7 @@ export const imageMapping = {
 
   Gujarat: {
     image:
-      "https://www.travelandtourworld.com/wp-content/uploads/2024/12/DALLE-2024-12-21-200325-A-realistic-landscape-image-of-the-Rann-Utsav-in-Gujarats-Kutch-region-showcasing-the-vast-White-Desert-under-a-moonlit-sky-The-scene-features-trad-850x486.jpg",
+      "https://www.gujarattourism.com/content/dam/gujrattourism/images/heritage-sites/taranga-hill/Taranga-hill-Banner.jpg",
     "Bhiloda Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipORavStoSqfpgud2fkK1Txq-da6tKN1_HpkxNTs",
       "https://lh5.googleusercontent.com/p/AF1QipORavStoSqfpgud2fkK1Txq-da6tKN1_HpkxNTs",
@@ -1845,7 +1845,7 @@ export const imageMapping = {
   },
   "West Bengal": {
     image:
-      "https://t4.ftcdn.net/jpg/09/08/26/01/360_F_908260185_s7bF5gVUbg1IM70n9uFeDQLRJFx0tlyS.jpg",
+      "https://www.jainmandir.org/App_Themes/Temple/gallery/Pakbira-Purulia-11.jpg",
     "Chinsura Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipPJOOoByVmgdnHh_N4JJ7lMa4i7ZvbEGN4kcENW",
       "https://lh5.googleusercontent.com/p/AF1QipPMv253a_tL1OjWhmFrY8wNdzwQGyufqqu4q36R",
@@ -1871,7 +1871,7 @@ export const imageMapping = {
   },
   Jharkhand: {
     image:
-      "https://as1.ftcdn.net/v2/jpg/08/05/75/42/1000_F_805754246_wddhiIzivz80pZAVSi0gs9vqqkzZSH2c.jpg",
+      "https://vardhmanvacations.com/blog/wp-content/uploads/2024/07/Shri-Sammed-Shikharji-Yatra-1024x585.jpg",
     "Kolhua Pahad Siddhakshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipMhktk90mIFa0uRy8iAyjhQs7CmWe6vzmZotz8i",
       "https://lh5.googleusercontent.com/p/AF1QipNytlUewxxETm8CUGFka7Rk7yBf2_yfEk8aaM0L",
@@ -1898,7 +1898,7 @@ export const imageMapping = {
   },
   Assam: {
     image:
-      "https://img.freepik.com/premium-photo/tea-leaves-assam-tea-green-nature_641503-195801.jpg?w=900",
+      "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjgcqlGLScVxpPAlfo6w3fEKxhurSPseX3ZtzyPdPuiszMk0LgeJgehJDiXqRWuDb1Rm2NvjTAnCYnctVjVeVCHKqunbpZj6P9AwKllUXD7ZMXhqKfoTXA3PHFcKLOC_8e0LhtcIjQ2FkP8eAe9RsBk-c1whT1HoL1Vt6dkHUAYjqFuvzTErhA8JckMKi00/s1280/Sri-Suriya-pahar.webp",
     "Suryapahad Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipNuKadWKlqmOmYtJ_y2ZxxlKlrChfBhCPmNqPmJ",
       "https://lh5.googleusercontent.com/p/AF1QipMKUtkr_6-TS8JY0QMeEyWpPlojT3-GyULzt1QC",

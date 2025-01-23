@@ -27,7 +27,7 @@ export const getStates = () => {
 export const getPlacesByState = (stateName) => {
   const state = finalData.Sheet1.filter((item) => item.Rajya === stateName);
   const allPlaces = state.map((item) => item["Naam"]);
-  console.log(allPlaces);
+  // console.log(allPlaces);
   
   return Promise.resolve(allPlaces);
 };

@@ -27,7 +27,6 @@ console.log(getStates)
 const getPlacesByState = (stateName) => {
     const state = finalData.Sheet1.filter((item) => item.State === stateName);
     const allPlaces = state.map((item) => item["Naam"]);
-    console.log(allPlaces);
     
     return Promise.resolve(allPlaces);
   };

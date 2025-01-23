@@ -109,7 +109,7 @@ const PlacesGrid = ({ route }) => {
             {/* Search Bar */}
             <TextInput
               style={styles.searchBar}
-              placeholder="Search Places..."
+              placeholder="Search"
               value={searchQuery}
               onChangeText={setSearchQuery}
             />

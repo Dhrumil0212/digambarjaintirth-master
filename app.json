@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Jain Tirth Nirdeshika",
+    "name": "Acharya Shri Vidyasagar Jain Tirth Digdershika",
     "slug": "digambarjaintirth",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon.jpg",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash-icon.png",
