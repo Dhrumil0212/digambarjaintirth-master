@@ -13,7 +13,7 @@ const PlacesGrid = ({ route }) => {
   const { stateName } = route.params;
   const [places, setPlaces] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState([]);
+  const [favorites_en, setFavorites] = useState([]); // Renamed to favorites_en
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -46,7 +46,7 @@ const PlacesGrid = ({ route }) => {
     // Load favorites from AsyncStorage
     const loadFavorites = async () => {
       try {
-        const storedFavorites = await AsyncStorage.getItem('favorites');
+        const storedFavorites = await AsyncStorage.getItem('favorites_en'); // Ensure correct key is used here
         if (storedFavorites) {
           setFavorites(JSON.parse(storedFavorites));
         }
@@ -62,16 +62,16 @@ const PlacesGrid = ({ route }) => {
     // Save favorites to AsyncStorage whenever the favorites list changes
     const saveFavorites = async () => {
       try {
-        await AsyncStorage.setItem('favorites', JSON.stringify(favorites));
+        await AsyncStorage.setItem('favorites_en', JSON.stringify(favorites_en)); // Ensure correct key here
       } catch (error) {
         console.error("Failed to save favorites:", error);
       }
     };
 
-    if (favorites.length > 0) {
+    if (favorites_en.length > 0) {
       saveFavorites();
     }
-  }, [favorites]);
+  }, [favorites_en]);
 
   const filteredPlaces = places.filter(place =>
     place["Name teerth"].toLowerCase().includes(searchQuery.toLowerCase())
@@ -85,7 +85,7 @@ const PlacesGrid = ({ route }) => {
       
       // Save updated favorites to AsyncStorage
       try {
-        AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));  // Save to AsyncStorage
+        AsyncStorage.setItem('favorites_en', JSON.stringify(updatedFavorites)); // Save to AsyncStorage with correct key
       } catch (error) {
         console.error("Failed to save favorites:", error);
       }
@@ -94,39 +94,6 @@ const PlacesGrid = ({ route }) => {
     });
   };
   
-  // const toggleFavorite = (placeName) => {
-  //   setFavorites((prev) => {
-  //     const updatedFavorites = prev.includes(placeName)
-  //       ? prev.filter((name) => name !== placeName)
-  //       : [...prev, placeName];
-  
-  //     // Save updated favorites to AsyncStorage
-  //     const saveFavorites = async () => {
-  //       try {
-  //         await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-  //       } catch (error) {
-  //         console.error("Failed to save favorites:", error);
-  //       }
-  //     };
-  
-  //     saveFavorites();
-  //     return updatedFavorites;
-  //   });
-  // };
-  
-  // const toggleFavorite = (placeName) => {
-  //   setFavorites((prev) => {
-  //     const updatedFavorites = prev.includes(placeName)
-  //       ? prev.filter((name) => name !== placeName)
-  //       : [...prev, placeName];
-      
-  //     // Log favorites for debugging
-  //     console.log('Updated Favorites:', updatedFavorites);
-
-  //     return updatedFavorites;
-  //   });
-  // };
-
   const renderPlaceCard = ({ item }) => (
     <TouchableOpacity
       style={styles.cardContainer}
@@ -149,17 +116,16 @@ const PlacesGrid = ({ route }) => {
         <TouchableOpacity onPress={() => toggleFavorite(item["Name teerth"])} style={styles.favoriteButton}>
           <HeartIcon
             size={24}
-            color={favorites.includes(item["Name teerth"]) ? "red" : "gray"}
+            color={favorites_en.includes(item["Name teerth"]) ? "red" : "gray"} // Use favorites_en here
           />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 
-  
   const sortedPlaces = filteredPlaces.sort((a, b) => {
-    const isAFavorite = favorites.includes(a["Name teerth"]);
-    const isBFavorite = favorites.includes(b["Name teerth"]);
+    const isAFavorite = favorites_en.includes(a["Name teerth"]);
+    const isBFavorite = favorites_en.includes(b["Name teerth"]);
     if (isAFavorite && !isBFavorite) {
       return -1;
     }

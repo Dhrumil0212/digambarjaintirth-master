@@ -1,28 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { HeartIcon } from 'react-native-heroicons/solid';  // Import the Heart Icon
-import AsyncStorage from '@react-native-async-storage/async-storage';  // Import AsyncStorage
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation for navigation
+import { HeartIcon } from 'react-native-heroicons/solid'; // Heart Icon for favorites
+import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage for storing favorites
+import { useNavigation } from '@react-navigation/native'; // Navigation hook
+import { useLanguage } from '../services/LanguageContext'; // Language context
 
 const FavoritesScreen = () => {
   const [favorites, setFavorites] = useState([]);  // State to store favorites
   const navigation = useNavigation();  // Access the navigation prop
+  const { language, toggleLanguage } = useLanguage();  // Language context
 
-  // Load favorites from AsyncStorage when the component mounts
+  // Load favorites based on current language when the component mounts or language changes
   useEffect(() => {
     const loadFavorites = async () => {
       try {
-        const storedFavorites = await AsyncStorage.getItem('favorites');
+        // Choose the favorites key based on the current language
+        const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
+        const storedFavorites = await AsyncStorage.getItem(favoritesKey);
+        
         if (storedFavorites) {
           setFavorites(JSON.parse(storedFavorites));  // Load favorites into state
+        } else {
+          setFavorites([]); // No favorites yet
         }
       } catch (error) {
         console.error("Failed to load favorites:", error);
       }
     };
 
-    loadFavorites();  // Load favorites when screen is mounted
-  }, []);  // Empty dependency array ensures this runs only once
+    loadFavorites();  // Load favorites when screen is mounted or language is changed
+  }, [language]);  // Trigger the effect whenever the language changes
 
   // Function to handle navigation to the PlaceDetails screen when a favorite is clicked
   const handlePlaceClick = (placeName) => {
@@ -45,8 +52,9 @@ const FavoritesScreen = () => {
 
       setFavorites(updatedFavorites);  // Update the favorites state
 
-      // Update AsyncStorage with the new list of favorites
-      await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      // Save the updated list to AsyncStorage based on the current language
+      const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
+      await AsyncStorage.setItem(favoritesKey, JSON.stringify(updatedFavorites));
     } catch (error) {
       console.error("Failed to toggle favorite:", error);
     }
@@ -56,7 +64,9 @@ const FavoritesScreen = () => {
   if (favorites.length === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.heading}>No Favorites Yet</Text>
+        <Text style={styles.heading}>
+          {language === 'en' ? 'No Favorites Yet' : 'अभी तक कोई पसंदीदा नहीं'}
+        </Text>
       </View>
     );
   }
@@ -80,7 +90,20 @@ const FavoritesScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Favorites</Text>
+      <Text style={styles.heading}>
+        {language === 'en' ? 'Favorites' : 'पसंदीदा'}
+      </Text>
+
+      {/* Language Toggle Button */}
+      <TouchableOpacity
+        style={styles.toggleButton}
+        onPress={toggleLanguage}
+      >
+        <Text style={styles.toggleButtonText}>
+          {language === 'en' ? 'HI' : 'EN'}
+        </Text>
+      </TouchableOpacity>
+
       <FlatList
         data={favorites}
         renderItem={renderFavoriteCard}
@@ -131,6 +154,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginRight: 10,
+  },
+  toggleButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    zIndex: 1,
+  },
+  toggleButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
 

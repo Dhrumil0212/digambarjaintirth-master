@@ -7,9 +7,10 @@ import { getPlacesByState } from "../services/getStateHIN"; // Fetch places for 
 import { imageMapping } from "../config/imageMappingHi"; // Import image mapping
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { HeartIcon } from "react-native-heroicons/solid";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PlacesGrid = ({ route }) => {
-  const { stateName } = route.params; // Get the state name passed via route
+  const { stateName } = route.params;
   const [places, setPlaces] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState([]);
@@ -40,18 +41,56 @@ const PlacesGrid = ({ route }) => {
         setPlaces(uniquePlaces);
       }
     });
+
+    // Load favorites from AsyncStorage
+    const loadFavorites = async () => {
+      try {
+        const storedFavorites = await AsyncStorage.getItem('favorites_hi');
+        if (storedFavorites) {
+          setFavorites(JSON.parse(storedFavorites));
+        }
+      } catch (error) {
+        console.error("Failed to load favorites:", error);
+      }
+    };
+
+    loadFavorites();
   }, [stateName]);
+
+  useEffect(() => {
+    // Save favorites to AsyncStorage whenever the favorites list changes
+    const saveFavorites = async () => {
+      try {
+        await AsyncStorage.setItem('favorites_hi', JSON.stringify(favorites));
+      } catch (error) {
+        console.error("Failed to save favorites:", error);
+      }
+    };
+
+    if (favorites.length > 0) {
+      saveFavorites();
+    }
+  }, [favorites]);
 
   const filteredPlaces = places.filter(place =>
     place["Naam"].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const toggleFavorite = (placeName) => {
-    setFavorites((prev) =>
-      prev.includes(placeName)
+  const toggleFavorite = async (placeName) => {
+    setFavorites((prev) => {
+      const updatedFavorites = prev.includes(placeName)
         ? prev.filter((name) => name !== placeName)
-        : [...prev, placeName]
-    );
+        : [...prev, placeName];
+      
+      // Save updated favorites to AsyncStorage
+      try {
+        AsyncStorage.setItem('favorites_hi', JSON.stringify(updatedFavorites));
+      } catch (error) {
+        console.error("Failed to save favorites:", error);
+      }
+
+      return updatedFavorites;
+    });
   };
 
   const renderPlaceCard = ({ item }) => (
@@ -116,7 +155,6 @@ const PlacesGrid = ({ route }) => {
 
             {/* List */}
             <View style={styles.listContainer}>
-              {/* If no results, show a message */}
               {filteredPlaces.length === 0 && searchQuery.length > 0 ? (
                 <Text style={styles.noResults}>No places found</Text>
               ) : (
