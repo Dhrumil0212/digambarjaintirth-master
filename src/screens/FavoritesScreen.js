@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     paddingVertical: 20,
     marginTop:35 
   },
@@ -123,16 +123,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
+    marginTop:20,
     marginBottom: 20,
   },
   listContainer: {
-    marginTop: 20,
+    // marginTop: 20,
   },
   cardContainer: {
     backgroundColor: "#fff",
     borderRadius: 8,
-    marginTop:15,
-    marginBottom: 15,
+    marginTop:5,
+    marginBottom: 5,
     padding: 15,
     flexDirection: "row",
     justifyContent: "space-between",

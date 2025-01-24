@@ -4,7 +4,7 @@
     "slug": "digambarjaintirth",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.jpg",
+    "icon": "./assets/icon1.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -19,7 +19,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.dhrumil212.jaintirthnirdeshika",
+      "package": "com.dhrumil212.jaintirthdigdershika",
       "versionCode": 1
     },
     "web": {
