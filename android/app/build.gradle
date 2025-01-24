@@ -81,9 +81,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'com.dhrumil212.jaintirthnirdeshika'
+    namespace 'com.dhrumil212.jaintirthdigdershika'
     defaultConfig {
-        applicationId 'com.dhrumil212.jaintirthnirdeshika'
+        applicationId 'com.dhrumil212.jaintirthdigdershika'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
