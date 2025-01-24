@@ -60,17 +60,6 @@ const FavoritesScreen = () => {
     }
   };
 
-  // If there are no favorites, show a message
-  if (favorites.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.heading}>
-          {language === 'en' ? 'No Favorites Yet' : 'अभी तक कोई पसंदीदा नहीं'}
-        </Text>
-      </View>
-    );
-  }
-
   // Render a single favorite item in the list
   const renderFavoriteCard = ({ item }) => (
     <View style={styles.cardContainer}>
@@ -104,12 +93,20 @@ const FavoritesScreen = () => {
         </Text>
       </TouchableOpacity>
 
-      <FlatList
-        data={favorites}
-        renderItem={renderFavoriteCard}
-        keyExtractor={(item) => item}
-        contentContainerStyle={styles.listContainer}
-      />
+      {/* Display no favorites message if the list is empty */}
+      {favorites.length === 0 ? (
+        <Text style={styles.noFavoritesText}>
+          {language === 'en' ? 'No Favorites Yet' : 'अभी तक कोई पसंदीदा नहीं'}
+        </Text>
+      ) : (
+        // Display favorites list if there are any
+        <FlatList
+          data={favorites}
+          renderItem={renderFavoriteCard}
+          keyExtractor={(item) => item}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
     </View>
   );
 };
@@ -120,6 +117,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f9fa",
     paddingHorizontal: 16,
     paddingVertical: 20,
+    marginTop:35 
   },
   heading: {
     fontSize: 24,
@@ -133,6 +131,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: "#fff",
     borderRadius: 8,
+    marginTop:15,
     marginBottom: 15,
     padding: 15,
     flexDirection: "row",
@@ -168,6 +167,11 @@ const styles = StyleSheet.create({
   toggleButtonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  noFavoritesText: {
+    fontSize: 18,
+    textAlign: "center",
+    color: "#6c757d",
   },
 });
 
