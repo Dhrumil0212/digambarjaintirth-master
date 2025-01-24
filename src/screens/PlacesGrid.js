@@ -7,15 +7,17 @@ import { getPlacesByState } from "../services/getStateENG"; // Fetch places for 
 import { imageMapping } from "../config/imageMapping"; // Import image mapping
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { HeartIcon } from "react-native-heroicons/solid";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PlacesGrid = ({ route }) => {
-  const { stateName } = route.params; // Get the state name passed via route
+  const { stateName } = route.params;
   const [places, setPlaces] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
+    // Fetch places data
     getPlacesByState(stateName).then((placesData) => {
       if (Array.isArray(placesData) && placesData.length > 0) {
         const transformedData = placesData.map((placeName) => {
@@ -40,18 +42,52 @@ const PlacesGrid = ({ route }) => {
         setPlaces(uniquePlaces);
       }
     });
+
+    // Load favorites from AsyncStorage
+    const loadFavorites = async () => {
+      try {
+        const storedFavorites = await AsyncStorage.getItem('favorites');
+        if (storedFavorites) {
+          setFavorites(JSON.parse(storedFavorites));
+        }
+      } catch (error) {
+        console.error("Failed to load favorites:", error);
+      }
+    };
+
+    loadFavorites();
   }, [stateName]);
+
+  useEffect(() => {
+    // Save favorites to AsyncStorage whenever the favorites list changes
+    const saveFavorites = async () => {
+      try {
+        await AsyncStorage.setItem('favorites', JSON.stringify(favorites));
+      } catch (error) {
+        console.error("Failed to save favorites:", error);
+      }
+    };
+
+    if (favorites.length > 0) {
+      saveFavorites();
+    }
+  }, [favorites]);
 
   const filteredPlaces = places.filter(place =>
     place["Name teerth"].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const toggleFavorite = (placeName) => {
-    setFavorites((prev) =>
-      prev.includes(placeName)
+    setFavorites((prev) => {
+      const updatedFavorites = prev.includes(placeName)
         ? prev.filter((name) => name !== placeName)
-        : [...prev, placeName]
-    );
+        : [...prev, placeName];
+      
+      // Log favorites for debugging
+      console.log('Updated Favorites:', updatedFavorites);
+
+      return updatedFavorites;
+    });
   };
 
   const renderPlaceCard = ({ item }) => (
@@ -87,12 +123,12 @@ const PlacesGrid = ({ route }) => {
     const isAFavorite = favorites.includes(a["Name teerth"]);
     const isBFavorite = favorites.includes(b["Name teerth"]);
     if (isAFavorite && !isBFavorite) {
-      return -1; // Move favorites to the top
+      return -1;
     }
     if (!isAFavorite && isBFavorite) {
-      return 1; // Keep non-favorites below
+      return 1;
     }
-    return 0; // Keep the order unchanged if both are either favorite or non-favorite
+    return 0;
   });
 
   return (
@@ -116,7 +152,6 @@ const PlacesGrid = ({ route }) => {
 
             {/* List */}
             <View style={styles.listContainer}>
-              {/* If no results, show a message */}
               {filteredPlaces.length === 0 && searchQuery.length > 0 ? (
                 <Text style={styles.noResults}>No places found</Text>
               ) : (
@@ -141,7 +176,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f9fa",
     paddingHorizontal: wp(4),
-    
   },
   safeAreaView: {
     flex: 1,
@@ -159,11 +193,6 @@ const styles = StyleSheet.create({
   grid: {
     alignItems: "flex-start",
     justifyContent: "flex-start",
-    // marginTop: hp(1),
-    // marginBottom: hp(50),
-    paddingBottom: hp(2),
-
-
   },
   cardContainer: {
     backgroundColor: "#fff",
@@ -176,8 +205,7 @@ const styles = StyleSheet.create({
     shadowRadius: wp(2),
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
-    marginBottom:hp(1)
-    
+    marginBottom: hp(1),
   },
   cardImage: {
     width: "100%",
@@ -199,11 +227,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    // paddingHorizontal: wp(2),
-    // paddingVertical: hp(1),
     padding: wp(2),
-
-    
   },
   cardTitle: {
     fontSize: wp(4),
@@ -214,7 +238,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: wp(2),
     paddingBottom: hp(0.5),
-
   },
   favoriteButton: {
     justifyContent: "center",
@@ -238,7 +261,7 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     marginTop: hp(1),
-    marginBottom:wp(2)
+    marginBottom: wp(2),
   },
 });
 
