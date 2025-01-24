@@ -77,18 +77,55 @@ const PlacesGrid = ({ route }) => {
     place["Name teerth"].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const toggleFavorite = (placeName) => {
+  const toggleFavorite = async (placeName) => {
     setFavorites((prev) => {
       const updatedFavorites = prev.includes(placeName)
         ? prev.filter((name) => name !== placeName)
         : [...prev, placeName];
       
-      // Log favorites for debugging
-      console.log('Updated Favorites:', updatedFavorites);
-
+      // Save updated favorites to AsyncStorage
+      try {
+        AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));  // Save to AsyncStorage
+      } catch (error) {
+        console.error("Failed to save favorites:", error);
+      }
+  
       return updatedFavorites;
     });
   };
+  
+  // const toggleFavorite = (placeName) => {
+  //   setFavorites((prev) => {
+  //     const updatedFavorites = prev.includes(placeName)
+  //       ? prev.filter((name) => name !== placeName)
+  //       : [...prev, placeName];
+  
+  //     // Save updated favorites to AsyncStorage
+  //     const saveFavorites = async () => {
+  //       try {
+  //         await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+  //       } catch (error) {
+  //         console.error("Failed to save favorites:", error);
+  //       }
+  //     };
+  
+  //     saveFavorites();
+  //     return updatedFavorites;
+  //   });
+  // };
+  
+  // const toggleFavorite = (placeName) => {
+  //   setFavorites((prev) => {
+  //     const updatedFavorites = prev.includes(placeName)
+  //       ? prev.filter((name) => name !== placeName)
+  //       : [...prev, placeName];
+      
+  //     // Log favorites for debugging
+  //     console.log('Updated Favorites:', updatedFavorites);
+
+  //     return updatedFavorites;
+  //   });
+  // };
 
   const renderPlaceCard = ({ item }) => (
     <TouchableOpacity
@@ -119,6 +156,7 @@ const PlacesGrid = ({ route }) => {
     </TouchableOpacity>
   );
 
+  
   const sortedPlaces = filteredPlaces.sort((a, b) => {
     const isAFavorite = favorites.includes(a["Name teerth"]);
     const isBFavorite = favorites.includes(b["Name teerth"]);

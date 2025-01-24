@@ -1,11 +1,58 @@
-import React from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
-import { HeartIcon } from "react-native-heroicons/solid";
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { HeartIcon } from 'react-native-heroicons/solid';  // Import the Heart Icon
+import AsyncStorage from '@react-native-async-storage/async-storage';  // Import AsyncStorage
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation for navigation
 
-const FavoritesScreen = ({ route, navigation }) => {
-  // Ensure 'favorites' is passed correctly or fallback to an empty array
-  const { favorites = [] } = route.params || {};
+const FavoritesScreen = () => {
+  const [favorites, setFavorites] = useState([]);  // State to store favorites
+  const navigation = useNavigation();  // Access the navigation prop
 
+  // Load favorites from AsyncStorage when the component mounts
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const storedFavorites = await AsyncStorage.getItem('favorites');
+        if (storedFavorites) {
+          setFavorites(JSON.parse(storedFavorites));  // Load favorites into state
+        }
+      } catch (error) {
+        console.error("Failed to load favorites:", error);
+      }
+    };
+
+    loadFavorites();  // Load favorites when screen is mounted
+  }, []);  // Empty dependency array ensures this runs only once
+
+  // Function to handle navigation to the PlaceDetails screen when a favorite is clicked
+  const handlePlaceClick = (placeName) => {
+    // Navigate to the PlaceDetails screen and pass the place name as a parameter
+    navigation.navigate('PlaceDetails', { placeName });
+  };
+
+  // Function to handle toggling the favorite status (add/remove) of a place
+  const handleToggleFavorite = async (placeName) => {
+    try {
+      let updatedFavorites;
+
+      // If the place is already in favorites, remove it
+      if (favorites.includes(placeName)) {
+        updatedFavorites = favorites.filter(item => item !== placeName);
+      } else {
+        // If the place is not in favorites, add it
+        updatedFavorites = [...favorites, placeName];
+      }
+
+      setFavorites(updatedFavorites);  // Update the favorites state
+
+      // Update AsyncStorage with the new list of favorites
+      await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    } catch (error) {
+      console.error("Failed to toggle favorite:", error);
+    }
+  };
+
+  // If there are no favorites, show a message
   if (favorites.length === 0) {
     return (
       <View style={styles.container}>
@@ -14,16 +61,21 @@ const FavoritesScreen = ({ route, navigation }) => {
     );
   }
 
+  // Render a single favorite item in the list
   const renderFavoriteCard = ({ item }) => (
-    <TouchableOpacity
-      style={styles.cardContainer}
-      onPress={() => navigation.navigate("PlaceDetails", { placeName: item })}
-    >
-      <View style={styles.cardContent}>
+    <View style={styles.cardContainer}>
+      <TouchableOpacity 
+        style={styles.favoriteCard} 
+        onPress={() => handlePlaceClick(item)} // Navigate to PlaceDetails on click
+      >
         <Text style={styles.cardTitle}>{item}</Text>
-        <HeartIcon size={24} color="red" />
-      </View>
-    </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleToggleFavorite(item)} // Toggle favorite on heart icon click
+        >
+          <HeartIcon size={24} color={favorites.includes(item) ? "red" : "gray"} />
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -52,29 +104,33 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
+  listContainer: {
+    marginTop: 20,
+  },
   cardContainer: {
     backgroundColor: "#fff",
     borderRadius: 8,
-    marginBottom: 16,
-    padding: 16,
+    marginBottom: 15,
+    padding: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
   },
-  cardContent: {
+  favoriteCard: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    flex: 1,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#343a40",
-  },
-  listContainer: {
-    flex: 1,
+    marginRight: 10,
   },
 });
 
