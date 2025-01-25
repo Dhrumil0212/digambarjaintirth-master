@@ -13,6 +13,10 @@ export const stateMapping = {
     "Pawapuri Siddhakshetra",
     "Rajgirji Siddhakshetra",
   ],
+  "Chattisgarh" :[
+    "Chandragiri Atishyakshetra"
+  ],
+
   Gujarat: [
     "Vaishali Atishaykshetra",
     "Bhiloda Atishaykshetra",

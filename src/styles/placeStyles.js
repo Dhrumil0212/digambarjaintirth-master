@@ -92,4 +92,27 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: 600, // Set a height to ensure it's visible
   },
+  mapContainer: {
+    backgroundColor: '#4CAF50', // Green background for the button
+    paddingVertical: 12, // Vertical padding to make the button more clickable
+    paddingHorizontal: 20, // Horizontal padding for better touch area
+    borderRadius: 30, // Rounded corners for the button
+    alignItems: 'center', // Center text horizontally
+    justifyContent: 'center', // Center text vertically
+    marginTop: 15,
+    marginBottom: 5, // Space above the button
+     // Space above the button
+    shadowColor: '#000', // Shadow effect for depth
+    shadowOffset: { width: 0, height: 4 }, // Shadow positioning
+    shadowOpacity: 0.3, // Light shadow opacity
+    shadowRadius: 5, // Shadow blur
+    elevation: 6, // Android shadow
+  },
+  mapText: {
+    // color: '#fff', // White text for contrast on the green background
+    fontSize: 17, // Text size that’s readable
+    fontWeight: 'bold', // Bold text for emphasis
+    textAlign: 'center', // Center the text
+    letterSpacing: 1, // Slightly increase spacing for clarity
+  },
 });

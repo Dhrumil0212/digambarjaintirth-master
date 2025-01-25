@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, FlatList } fr
 
 // Sample data for photos and details of other developers
 const otherDevelopers = [
-  { id: '1', name: 'प्रेरणा स्तोत्र : ब्र.अनिल कुमार जैन', image: 'https://picsum.photos/300', details: 'Details about developer 1' },
-  { id: '2', name: 'मार्गदर्शन: पूज्य मुनि श्री अभय सागर जी महाराज', image: 'https://picsum.photos/300', details: 'Details about developer 2' },
+  { id: '1', name: 'प्रेरणा स्तोत्र : ब्र.अनिल कुमार जैन', image: 'https://picsum.photos/300' },
+  { id: '2', name: 'मार्गदर्शन: पूज्य मुनि श्री अभय सागर जी महाराज', image: 'https://vidyasagarmedia.s3.us-east-2.amazonaws.com/monthly_2023_02/large.(12).JPG.e9b47927b0e219572d0876f9d7980f0b.JPG',}
+  //  details: 'Details about developer 2' },
 ];
 
 const InfoScreen = () => {
@@ -106,9 +107,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   photoImage: {
-    width: 150,  // Larger image for other developers
-    height: 150, // Larger image for other developers
-    borderRadius: 75,  // Round image
+    width: 200,  // Larger image for other developers
+    height: 200, // Larger image for other developers
+    borderRadius: 25,  // Round image
   },
   photoName: {
     marginTop: 10,

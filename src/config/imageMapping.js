@@ -2,6 +2,8 @@ export const imageMapping = {
   "Madhya Pradesh": {
     image:
       "https://thedesigngesture.com/wp-content/uploads/2024/08/Designer-2024-08-30T162807.414-900x900.jpeg.webp",
+      "Pratibhasthali Indore":["https://lh5.googleusercontent.com/p/AF1QipNHu26-LrxlEdhwrJU7fqW7dHJ3Yq-7apFkKS4F=s1024","https://lh5.googleusercontent.com/p/AF1QipObu7ilbyWd0jvqf9sy8LiL270zvjJJOU8L7dMc=s1052-k-no","https://lh5.googleusercontent.com/p/AF1QipNReezxBeF9ZS7OfvSmEEm7V86vXTyo6iwCBbG1=s512"],
+      "Pratibhasthali Jabalpur":["https://jabalpur.pratibhasthali.org/wp-content/uploads/2024/07/facilities_jnly_img2.jpg","https://lh5.googleusercontent.com/p/AF1QipN5ttUZIwTxrfNYk_t-xdJBI0SqZ3U5gk8-kIwU=s1024","https://lh5.googleusercontent.com/p/AF1QipMO7ujRbaTz6dqSVEQuL0eC2b27OoEWNKB_5C5J=w496-h496-p-k-no","https://lh5.googleusercontent.com/p/AF1QipMEXpF7IU6l3HlXCbJnHL_3D1zwm7tiPg-4l5sO=s1024","https://lh5.googleusercontent.com/p/AF1QipOrMZFP1CQ0xRuohuRB19VZ5PHrt7VJSoAI9O7h=s1233-k-no"],
     "Aahuji Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipPyN2uTU1rKbwvNk_8UiJfjUDpQoeEWRjNp8qE",
       "https://lh5.googleusercontent.com/p/AF1QipOpyFz--JI62QoiaevEGRCTvz0DdUuS8l60doJr",
@@ -644,6 +646,7 @@ export const imageMapping = {
   },
   Maharashtra: {
     image: "https://scontent.famd4-1.fna.fbcdn.net/v/t39.30808-6/469452003_8745597708864951_6652288818282273888_n.jpg?stp=dst-jpg_s640x640_tt6&_nc_cat=100&ccb=1-7&_nc_sid=3a1ebe&_nc_ohc=tE-_IACXSc4Q7kNvgHm9jX-&_nc_zt=23&_nc_ht=scontent.famd4-1.fna&_nc_gid=AKq8i4U6vDG4tTdpWDoSy-R&oh=00_AYDcd_aJFVRdKL720kTknblMw-KgVXvzoRrOt4IE2TLMMw&oe=67974334",
+    "Pratibhasthali Ramtek":["https://lh5.googleusercontent.com/p/AF1QipO8gEGZs7me2x2-UMMHTMfKkjYLUlWaTWpGJ_fe=s1024","https://lh5.googleusercontent.com/p/AF1QipMpTPEeZUF4M9TN3f85QNgEJ2kJYAYcRVnWAdcN=s1536","https://lh5.googleusercontent.com/p/AF1QipMniyVRMCgOUYm28_mMTIy1jdk-vsX5ija8RXuz=s1390-k-no"],
     "Aasegaon Atishaykshetra": [
       "https://lh5.googleusercontent.com/p/AF1QipOLJNd5xZfC4c9uJXqzMA0r2WpjPfsYbZXwhTvx",
       "https://lh5.googleusercontent.com/p/AF1QipNndKu6Vax046rrL4h_Krq8ZZ_K4N0Yoo2galUN",
@@ -1206,6 +1209,7 @@ export const imageMapping = {
   "Uttar Pradesh": {
     image:
       "https://instagram.famd4-1.fna.fbcdn.net/v/t51.29350-15/401888443_337882778829196_4203148347667001970_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xNDQweDE4MDAuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlIn0&_nc_ht=instagram.famd4-1.fna.fbcdn.net&_nc_cat=104&_nc_ohc=-xsZGjeVC3kQ7kNvgGfUTrp&_nc_gid=78d5b0d6a58d46c1b002b76aa4a0422e&edm=APs17CUBAAAA&ccb=7-5&ig_cache_key=MzIzNjQ4MTI5MzEzNzg0NjkyMg%3D%3D.3-ccb7-5&oh=00_AYCpeTjQTzAQYpa0RFNYOocoXcP9DJFYO1qI4l-OYPOWBw&oe=6796F826&_nc_sid=10d13b",
+      "Pratibhasthali Lalitpur":["https://lalitpur.pratibhasthali.org/wp-content/uploads/2024/10/facilities_school_simg1.jpg","https://lh5.googleusercontent.com/p/AF1QipOQUfve2x8ZB4iJn1PC9EW1yD7FnBT7Pxs2xx3q=s1536","https://lalitpur.pratibhasthali.org/wp-content/uploads/2024/10/facilities_jinalay_jimg0.jpg","https://lh5.googleusercontent.com/p/AF1QipN5PMJR5o6SAkWi6jztVcgEV-uvM6pT2HZDF-0C=s512",],
       "Ahikhetra Parshvanath Atishaykshetra": [
         "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
         "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
@@ -1644,6 +1648,13 @@ export const imageMapping = {
       "https://lh5.googleusercontent.com/p/AF1QipM-VnC3qkISGEhSECvwawfxZoG1RC5LyQVHtBMh",
       "https://lh5.googleusercontent.com/p/AF1QipOk2YyZ9YBIYjLLEhUxI-1zY5oRHb0oOs8V0Iht",
     ],
+  },
+  Chattisgarh :{
+    image :"https://lh3.googleusercontent.com/p/AF1QipPo2wg_fwh_GqrPEflHRRoQl3JwlCFptbSa7ub-=s680-w680-h510",
+    "Chandragiri Atishaykshetra":["https://lh3.googleusercontent.com/p/AF1QipPo2wg_fwh_GqrPEflHRRoQl3JwlCFptbSa7ub-=s680-w680-h510","https://lh3.googleusercontent.com/p/AF1QipMEigxVbBAV1_kAskuvkAL8l0xsjrwlzS7YpASf=s680-w680-h510","https://lh3.googleusercontent.com/p/AF1QipM4zcZqCZqBnlm6q51J-QH1PPZGvdRVDOu_v65j=s680-w680-h510"] ,
+    "Pratibhasthali Dongargarh": ["https://dongargarh.pratibhasthali.org/wp-content/uploads/2024/11/facilities_jinalaya_img4.jpg","https://dongargarh.pratibhasthali.org/wp-content/uploads/2024/11/pal_south19img0.jpg",
+      "https://dongargarh.pratibhasthali.org/wp-content/uploads/2024/11/pal_visits17_v17img1.jpg","https://lh3.googleusercontent.com/p/AF1QipNbPOBYAqMuji8U-WiRhbJk_GIeHsGtRQ5iRqAf=s680-w680-h510","https://lh3.googleusercontent.com/p/AF1QipMvUpFfeMMmWHRTbj7wVW7BOdLqPiX_X0msnoNH=s680-w680-h510"
+   ]   
   },
   Bihar: {
     image:
