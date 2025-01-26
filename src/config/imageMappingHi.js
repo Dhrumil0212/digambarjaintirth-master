@@ -1910,6 +1910,7 @@ export const imageMapping = {
         "उत्तरप्रदेश":{
     
            "image":"https://instagram.famd4-1.fna.fbcdn.net/v/t51.29350-15/401888443_337882778829196_4203148347667001970_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xNDQweDE4MDAuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlIn0&_nc_ht=instagram.famd4-1.fna.fbcdn.net&_nc_cat=104&_nc_ohc=-xsZGjeVC3kQ7kNvgGfUTrp&_nc_gid=78d5b0d6a58d46c1b002b76aa4a0422e&edm=APs17CUBAAAA&ccb=7-5&ig_cache_key=MzIzNjQ4MTI5MzEzNzg0NjkyMg%3D%3D.3-ccb7-5&oh=00_AYCpeTjQTzAQYpa0RFNYOocoXcP9DJFYO1qI4l-OYPOWBw&oe=6796F826&_nc_sid=10d13b",
+           "प्रतिभास्थली ललितपुर":["https://lalitpur.pratibhasthali.org/wp-content/uploads/2024/10/facilities_school_simg1.jpg","https://lh5.googleusercontent.com/p/AF1QipOQUfve2x8ZB4iJn1PC9EW1yD7FnBT7Pxs2xx3q=s1536","https://lalitpur.pratibhasthali.org/wp-content/uploads/2024/10/facilities_jinalay_jimg0.jpg","https://lh5.googleusercontent.com/p/AF1QipN5PMJR5o6SAkWi6jztVcgEV-uvM6pT2HZDF-0C=s512",],
            "अहिच्छत्र पार्श्वनाथ अतिशयक्षेत्र":[
             "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",
             "https://lh5.googleusercontent.com/p/AF1QipO04CNTNK9-PIAG1UL7YLGmagGxPrpk1oIRhPFr",

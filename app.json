@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "C:\\Users\\Dhrumil\\Downloads\\digambarjaintirth-master\\assets\\icon1_with_extra_space.png",
+        "foregroundImage": "C:\\Users\\Dhrumil\\Downloads\\digambarjaintirth-master\\assets\\icon1_with_less_space.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.dhrumil212.jaintirthdigdershika",
