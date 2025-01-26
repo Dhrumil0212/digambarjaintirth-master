@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     fontSize: wp(6),
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: hp(2),
+    marginTop: hp(3),
     color: "#343a40",
   },
   toggleButton: {
@@ -190,6 +190,8 @@ const styles = StyleSheet.create({
     top: hp(4),
     right: wp(4),
     backgroundColor: "#007bff",
+    
+   marginTop:hp(1),
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
