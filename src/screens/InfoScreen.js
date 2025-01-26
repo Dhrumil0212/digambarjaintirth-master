@@ -1,15 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, FlatList } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, FlatList, Dimensions } from 'react-native';
 
 // Sample data for photos and details of other developers
 const otherDevelopers = [
-  { id: '1', name: 'प्रेरणा स्तोत्र : ब्र.अनिल कुमार जैन', image: 'https://picsum.photos/300' },
-  { id: '2', name: 'मार्गदर्शन: पूज्य मुनि श्री अभय सागर जी महाराज', image: 'https://vidyasagarmedia.s3.us-east-2.amazonaws.com/monthly_2023_02/large.(12).JPG.e9b47927b0e219572d0876f9d7980f0b.JPG',}
-  //  details: 'Details about developer 2' },
+  { id: '1', name: 'मार्गदर्शन: पूज्य मुनि श्री अभय सागर जी महाराज', image: 'https://vidyasagarmedia.s3.us-east-2.amazonaws.com/monthly_2023_02/large.(12).JPG.e9b47927b0e219572d0876f9d7980f0b.JPG' },
+  { id: '2', name: 'प्रेरणा स्तोत्र : ब्र.अनिल कुमार जैन', image: 'https://i.imgur.com/myI1zBY.jpeg' }
+  
+  // Add more developer objects if needed
 ];
 
-const InfoScreen = () => {
+const { width } = Dimensions.get('window'); // Get screen width to make responsive design
 
+const InfoScreen = () => {
   // Handle link opening
   const handleOpenLink = (url) => {
     Linking.openURL(url);
@@ -23,23 +25,30 @@ const InfoScreen = () => {
         <View style={styles.contactTextContainer}>
           <Text style={styles.developerName}>ध्रुमिल जैन</Text>
           <Text style={styles.developerEmail}>Email: dhrumil0212@gmail.com</Text>
-          {/* <Text style={styles.developerDetails}>Senior Developer at XYZ Company. Passionate about creating awesome apps!</Text> */}
         </View>
       </View>
 
+      {/* Larger Photo above other developers */}
+      <View style={styles.largePhotoContainer}>
+        <Image
+          source={{ uri: 'https://i.imgur.com/rRlo8gx.jpeg' }} // Replace with your desired larger image URL
+          style={styles.largePhoto}
+        />
+      </View>
+
       {/* Grid of Other Developers */}
-      {/* <Text style={styles.subHeader}>Other Developers</Text> */}
       <FlatList
         data={otherDevelopers}
         renderItem={({ item }) => (
           <View style={styles.photoCard}>
             <Image source={{ uri: item.image }} style={styles.photoImage} />
             <Text style={styles.photoName}>{item.name}</Text>
-            <Text style={styles.photoDetails}>{item.details}</Text>
           </View>
         )}
         keyExtractor={(item) => item.id}
+        horizontal={true} // Horizontal list
         contentContainerStyle={styles.photoGrid}
+        showsHorizontalScrollIndicator={false} // Optional: hides the scroll indicator
       />
 
       {/* Google Form Links */}
@@ -67,14 +76,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 20,
   },
-  subHeader: {
-    fontSize: 22,
-    fontWeight: '600',
-    marginTop: 20,
-    marginBottom: 10,
-  },
   contactInfoContainer: {
-    flexDirection: 'row', // Side-by-side layout
+    flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 20,
     alignItems: 'center',
@@ -93,40 +96,46 @@ const styles = StyleSheet.create({
     color: '#555',
     marginTop: 8,
   },
-  developerDetails: {
-    fontSize: 16,
-    color: '#555',
-    textAlign: 'left',
-    marginTop: 8,
+  largePhotoContainer: {
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  largePhoto: {
+    width: '100%', // Make the large image take the full width of the screen
+    height: 250, // Set height as undefined for proper scaling
+    aspectRatio: 0.5, // Aspect ratio for the image (adjust as needed, 1.5 is just an example)
+    borderRadius: 15,
   },
   photoGrid: {
-    marginBottom: 20,
+    flexDirection: 'row', // Ensure horizontal layout
+    justifyContent: 'flex-start', // Align items to the start
+    marginLeft: 20,
   },
   photoCard: {
     marginBottom: 16,
     alignItems: 'center',
+    marginRight: 16, // Add some space between the images
+    width: width * 0.4, // Make image responsive based on screen width
   },
   photoImage: {
-    width: 200,  // Larger image for other developers
-    height: 200, // Larger image for other developers
-    borderRadius: 25,  // Round image
+    width: '100%', // Make image fill the available space within the photoCard
+    height: 150, // Fixed height for the image
+    borderRadius: 25, // Round the image
   },
   photoName: {
     marginTop: 10,
     fontWeight: '600',
     color: '#333',
-    fontSize: 18,
-  },
-  photoDetails: {
-    marginTop: 8,
-    color: '#555',
+    fontSize: 14, // Adjust font size to fit better
     textAlign: 'center',
-    fontSize: 14,
+    maxWidth: width * 0.4, // Ensure the name doesn't overflow
+    overflow: 'hidden', // Hide overflow text if it goes beyond the max width
+    textAlign: 'center', // Center the text
   },
   linksContainer: {
     marginTop: 20,
-    flexDirection: 'row',  // Horizontal arrangement
-    justifyContent: 'space-between',  // Space buttons apart
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
   },
@@ -135,7 +144,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 5,
-    marginRight: 12,  // Space between buttons
+    marginRight: 12,
   },
   linkText: {
     color: '#fff',

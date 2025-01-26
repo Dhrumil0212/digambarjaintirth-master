@@ -70,6 +70,20 @@ const PlaceDetails = ({ route }) => {
     }
   };
 
+  // Helper function to check if the value is an email
+  const isEmail = (str) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailPattern.test(str);
+  };
+
+  // Helper function to check if the value is a URL (supports "www" as well)
+  const isURL = (str) => {
+    const urlPattern = /^(http|https):\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/;
+    const wwwPattern = /^www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/;
+
+    return urlPattern.test(str) || wwwPattern.test(str); // Match both "http(s)://" and "www."
+  };
+
   // Render fields for additional place-related data from finalData
   const renderFields = (placeName) => {
     const placeData = finalData.Sheet1.filter(
@@ -99,12 +113,36 @@ const PlaceDetails = ({ route }) => {
       }
     });
 
-    return Object.keys(uniqueFields).map((key) => (
-      <View key={key} style={styles.section}>
-        <Text style={styles.sectionTitle}>{key}:</Text>
-        <Text style={styles.textContent}>{uniqueFields[key]}</Text>
-      </View>
-    ));
+    return Object.keys(uniqueFields).map((key) => {
+      const value = uniqueFields[key];
+      let onPress = null;
+
+      // Check if the value is an email or URL and set the onPress handler accordingly
+      if (isEmail(value)) {
+        onPress = () => Linking.openURL(`mailto:${value}`);
+      } else if (isURL(value)) {
+        // If it's a URL starting with "www", add "https://" before opening
+        const url = value.startsWith("www.") ? `https://${value}` : value;
+        onPress = () => Linking.openURL(url);
+      }
+
+      return (
+        <View key={key} style={styles.section}>
+          <Text style={[styles.sectionTitle]}>
+            {key}:
+          </Text>
+          {onPress ? (
+            <TouchableOpacity onPress={onPress}>
+              <Text style={[styles.textContent, styles.linkText]}>
+                {value}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <Text style={[styles.textContent]}>{value}</Text>
+          )}
+        </View>
+      );
+    });
   };
 
   // Handle error in loading image (if the image fails to load)
@@ -161,7 +199,9 @@ const PlaceDetails = ({ route }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.heading}>{place["Name teerth"]}</Text>
+      <Text style={[styles.heading]}>
+        {place["Name teerth"]}
+      </Text>
 
       {/* Image Slider */}
       <ScrollView horizontal style={styles.imageSlider}>
@@ -195,12 +235,15 @@ const PlaceDetails = ({ route }) => {
             style={styles.mapContainer}
             onPress={handleMapPress}
           >
-            <Text style={styles.mapText}>Open in Google Maps</Text>
+            <Text style={[styles.mapText]}>
+              Open in Google Maps
+            </Text>
           </TouchableOpacity>
         )}
       </View>
     </ScrollView>
   );
 };
+
 
 export default PlaceDetails;

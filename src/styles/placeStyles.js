@@ -115,4 +115,9 @@ export const styles = StyleSheet.create({
     textAlign: 'center', // Center the text
     letterSpacing: 1, // Slightly increase spacing for clarity
   },
+
+  linkText: {
+    color: 'lightblue', // Light blue color
+    textDecorationLine: 'underline', // Underline the text
+  },
 });
