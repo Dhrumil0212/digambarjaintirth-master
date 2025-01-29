@@ -8,146 +8,153 @@ import {
   Linking,
   TouchableOpacity,
 } from "react-native";
-import { getPlaceByName } from "../services/getStateHIN";
+import NetInfo from "@react-native-community/netinfo";
 import { imageMapping } from "../config/imageMappingHi";
 import { styles } from "../styles/placeStyles";
-import { stateMapping } from "../config/stateMapHi";
-import {
-  widthPercentageToDP as wp,
-  heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
-import finalData from "../data/final.json";
-import NetInfo from "@react-native-community/netinfo"; // इंटरनेट कनेक्टिविटी चेक करने के लिए
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+
+// Function to fetch place data from Google Sheets
+const fetchPlaceDataFromGoogleSheets = async (placeName, language) => {
+  try {
+    const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
+    const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
+    const range = "Sheet1!A1:Z600000"; // Adjust the range if needed
+
+    const response = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
+    );
+    const data = await response.json();
+
+    if (!data.values) {
+      console.error("No data found in the Google Sheets response");
+      return null;
+    }
+
+    const headerRow = data.values[0];
+    const nameColumnIndex = language === 'hi' ? headerRow.indexOf('Naam') : headerRow.indexOf('Name teerth');
+    const latitudeColumnIndex = headerRow.indexOf('latitude');
+    const longitudeColumnIndex = headerRow.indexOf('longitude');
+    const stateColumnIndex = headerRow.indexOf('State');
+    const rajyaColumnIndex = headerRow.indexOf('Rajya');
+
+    if (nameColumnIndex === -1 || latitudeColumnIndex === -1 || longitudeColumnIndex === -1) {
+      console.error("Required columns not found in the sheet.");
+      return null;
+    }
+
+    // Filter rows by place name
+    const placeData = data.values.filter(
+      (row) => row[nameColumnIndex] === placeName
+    );
+
+    if (placeData.length > 0) {
+      return placeData; // Return place data (with latitude and longitude)
+    } else {
+      console.log(`No data found for place: ${placeName}`);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching place data from Google Sheets:", error);
+    return null;
+  }
+};
 
 const PlaceDetails = ({ route }) => {
-  const { placeName, stateName } = route.params;
-
-  const [place, setPlace] = useState(null);
+  const { placeName, language = "hi" } = route.params; // Add language param
+  const [placeData, setPlaceData] = useState(null);
   const [images, setImages] = useState([]);
-  const [isConnected, setIsConnected] = useState(true); // इंटरनेट कनेक्शन स्थिति ट्रैक करना
+  const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
-    // नेटवर्क स्थिति चेक करें
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
     });
 
-    // स्थान डेटा और चित्र लोड करें
-    getPlaceByName(placeName)
-      .then((placeData) => {
-        setPlace(placeData);
-        loadImages(stateName, placeName);
-      })
-      .catch(() => setPlace({ error: true }));
+    const fetchData = async () => {
+      const data = await fetchPlaceDataFromGoogleSheets(placeName, language);
+      if (data) {
+        setPlaceData(data);
+      } else {
+        setPlaceData(null); // Ensure state is set to null if no data found
+      }
+    };
 
-    return () => unsubscribe(); // साफ करने के लिए NetInfo से अनसब्सक्राइब करें
-  }, [placeName, stateName]);
+    // Fetch place details
+    if (placeName) {
+      fetchData();
+      loadImages(placeName);
+    }
 
-  const loadImages = (state, place) => {
-    if (!state || !imageMapping[state]) return;
+    return () => unsubscribe();
+  }, [placeName, language]);
 
-    const placeImages = imageMapping[state]?.[place];
-    if (placeImages?.length > 0) {
-      setImages(placeImages);
+  // Load images for the place from imageMapping
+  const loadImages = (place) => {
+    let foundImages = [];
+    Object.keys(imageMapping).forEach((state) => {
+      if (imageMapping[state][place]) {
+        foundImages = imageMapping[state][place];
+      }
+    });
+
+    if (foundImages.length > 0) {
+      setImages(foundImages);
+    } else {
+      setImages([]);
     }
   };
 
   // Helper function to check if the value is an email
-  const isEmail = (str) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(str);
-  };
+  const isEmail = (str) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(str);
 
-  // Helper function to check if the value is a URL (supports "www" as well)
-  const isURL = (str) => {
-    const urlPattern = /^(http|https):\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/;
-    const wwwPattern = /^www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/;
+  // Helper function to check if the value is a URL
+  const isURL = (str) => /^(http|https):\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/.test(str);
 
-    return urlPattern.test(str) || wwwPattern.test(str); // Match both "http(s)://" and "www."
-  };
+  // Render all fields from placeData
+  const renderPlaceData = () => {
+    if (!placeData) return null;
 
-  // Render fields for additional place-related data from finalData
-  const renderFields = (placeName) => {
-    const placeData = finalData.Sheet1.filter(
-      (item) => item["Naam"] === placeName
-    );
+    return placeData.map((row, rowIndex) => {
+      // Get translated key and value from the row
+      const translatedKey = row[0]; // This should be the translated key (e.g., "Phone", "Email")
+      const translatedValue = row[2]; // This should be the translated value (the actual data like phone number, email, etc.)
 
-    if (placeData.length === 0) return null;
-
-    const uniqueFields = {};
-    placeData.forEach((item) => {
-      if (
-        item["Key"] === "Formatted Text" ||
-        item["Key"] === "Original Value" ||
-        item["Key"] === "Tirth" ||
-        item["Key"] === "Name teerth" ||
-        item["Key"] === "Naam" ||
-        item["Key"] === "State" ||
-        item["Key"] === "Rajya"
-      ) {
-        return;
-      }
-
-      const key = item["Key"] || item["Translated Key"];
-      const value = item["Original Value"] || item["Translated Value"];
-      if (!uniqueFields[key]) {
-        uniqueFields[key] = value;
-      }
-    });
-
-    return Object.keys(uniqueFields).map((key) => {
-      const value = uniqueFields[key];
       let onPress = null;
 
-      // Check if the value is an email or URL and set the onPress handler accordingly
-      if (isEmail(value)) {
-        onPress = () => Linking.openURL(`mailto:${value}`);
-      } else if (isURL(value)) {
-        // If it's a URL starting with "www", add "https://" before opening
-        const url = value.startsWith("www.") ? `https://${value}` : value;
+      if (isEmail(translatedValue)) {
+        onPress = () => Linking.openURL(`mailto:${translatedValue}`);
+      } else if (isURL(translatedValue)) {
+        const url = translatedValue.startsWith("www.") ? `https://${translatedValue}` : translatedValue;
         onPress = () => Linking.openURL(url);
       }
 
       return (
-        <View key={key} style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            {key}:
-          </Text>
+        <View key={rowIndex} style={styles.section}>
+          <Text style={styles.sectionTitle}>{translatedKey}:</Text>
           {onPress ? (
             <TouchableOpacity onPress={onPress}>
-              <Text style={[styles.textContent, styles.linkText]}>
-                {value}
-              </Text>
+              <Text style={[styles.textContent, styles.linkText]}>{translatedValue}</Text>
             </TouchableOpacity>
           ) : (
-            <Text style={[styles.textContent]}>{value}</Text>
+            <Text style={styles.textContent}>{translatedValue}</Text>
           )}
         </View>
       );
     });
   };
 
-  const handleImageError = (index) => {
-    console.log(`चित्र लोड करने में विफल रहा है, इंडेक्स ${index}`);
-    setImages((prevImages) => {
-      const newImages = [...prevImages];
-      newImages[index] = null;
-      return newImages.filter((img) => img !== null);
-    });
-  };
-
   const handleMapPress = () => {
-    if (place.latitude && place.longitude) {
-      const mapUrl = `https://www.google.com/maps?q=${place.latitude},${place.longitude}`;
-      
-      // ब्राउज़र या गूगल मैप्स ऐप में मानचित्र खोलें
+    if (placeData?.[0]?.[2] && placeData?.[0]?.[3]) { // Access latitude and longitude from the data
+      const mapUrl = `https://www.google.com/maps?q=${placeData[0][2]},${placeData[0][3]}`;
       Linking.openURL(mapUrl).catch((err) => {
-        console.error("मानचित्र खोलने में त्रुटि:", err);
+        console.error("Error opening map:", err);
       });
+    } else {
+      alert("Map coordinates not available.");
     }
   };
 
-  if (!place) {
+  if (!placeData) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#343a40" />
@@ -156,45 +163,25 @@ const PlaceDetails = ({ route }) => {
     );
   }
 
-  if (place.error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>
-          स्थान विवरण लोड करने में विफल। कृपया बाद में पुनः प्रयास करें।
-        </Text>
-      </View>
-    );
-  }
-
   if (!isConnected) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>
-          इंटरनेट कनेक्शन नहीं है। कृपया चित्र देखने के लिए इंटरनेट से कनेक्ट करें।
-        </Text>
+        <Text style={styles.errorText}>इंटरनेट कनेक्शन नहीं है। कृपया चित्र देखने के लिए इंटरनेट से कनेक्ट करें।</Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.heading}>{place["Naam"]}</Text>
+      <Text style={styles.heading}>{placeData[0][6]}</Text>
 
-      {/* चित्र स्लाइडर */}
       <ScrollView horizontal style={styles.imageSlider}>
         {images.length > 0 ? (
           images.map((img, index) =>
             img ? (
-              <Image
-                key={index}
-                source={{ uri: img }} // चित्र को URL से लोड करें
-                style={styles.image}
-                onError={() => handleImageError(index)}
-              />
+              <Image key={index} source={{ uri: img }} style={styles.image} />
             ) : (
-              <Text key={index} style={styles.noImageText}>
-                चित्र उपलब्ध नहीं है
-              </Text>
+              <Text key={index} style={styles.noImageText}>चित्र उपलब्ध नहीं है</Text>
             )
           )
         ) : (
@@ -202,16 +189,11 @@ const PlaceDetails = ({ route }) => {
         )}
       </ScrollView>
 
-      {/* जानकारी कंटेनर */}
       <View style={styles.infoContainer}>
-        {renderFields(place["Naam"])}
+        {renderPlaceData()}
 
-        {/* मानचित्र बटन */}
-        {place.latitude && place.longitude && (
-          <TouchableOpacity
-            style={styles.mapContainer}
-            onPress={handleMapPress}
-          >
+        {placeData[0]?.[2] && placeData[0]?.[3] && (
+          <TouchableOpacity style={styles.mapContainer} onPress={handleMapPress}>
             <Text style={styles.mapText}>गूगल मैप्स में खोलें</Text>
           </TouchableOpacity>
         )}
@@ -220,6 +202,5 @@ const PlaceDetails = ({ route }) => {
   );
 };
 
-
-
 export default PlaceDetails;
+
