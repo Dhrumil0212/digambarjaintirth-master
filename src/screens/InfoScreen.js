@@ -76,12 +76,12 @@ const InfoScreen = () => {
 
       {/* Fixed Position for the Google Form Links */}
       <View style={styles.linksContainer}>
-        <TouchableOpacity onPress={() => handleOpenLink('https://forms.gle/yourGoogleFormLink1')} style={styles.linkButton}>
-          <Text style={styles.linkText}>Fill out Form 1</Text>
+        <TouchableOpacity onPress={() => handleOpenLink('https://forms.gle/7WRtpuU8BCRfybPC7')} style={styles.linkButton}>
+          <Text style={styles.linkText}>तीर्थ स्थल विवरण फॉर्म</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleOpenLink('https://forms.gle/yourGoogleFormLink2')} style={styles.linkButton}>
+        {/* <TouchableOpacity onPress={() => handleOpenLink('https://forms.gle/yourGoogleFormLink2')} style={styles.linkButton}>
           <Text style={styles.linkText}>Fill out Form 2</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

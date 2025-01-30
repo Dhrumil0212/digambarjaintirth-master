@@ -1,28 +1,96 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, FlatList, TextInput, StyleSheet, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import { getPlacesByState } from "../services/getStateENG"; // Fetch places for the state
-import { imageMapping } from "../config/imageMapping"; // Import image mapping
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { HeartIcon } from "react-native-heroicons/solid";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// Function to fetch image mapping data from Google Sheets
+const fetchImageMappingFromGoogleSheets = async () => {
+  try {
+    const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
+    const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
+    const range = "ImageMappingEn!A1:Z100000"; // Adjust the range if needed
+
+    const response = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
+    );
+    const data = await response.json();
+
+    if (!data.values) {
+      console.error("No data found in the Google Sheets response");
+      return {};
+    }
+
+    const imageMapping = {};
+    const headerRow = data.values[0];
+    const stateNameColumnIndex = headerRow.indexOf("State");
+    const placeNameColumnIndex = headerRow.indexOf("Place");
+    const imageUrlColumnIndex = headerRow.indexOf("Image");
+
+    if (stateNameColumnIndex === -1 || placeNameColumnIndex === -1 || imageUrlColumnIndex === -1) {
+      console.error("Required columns not found in the sheet.");
+      return {};
+    }
+
+    data.values.slice(1).forEach((row) => {
+      const stateName = row[stateNameColumnIndex];
+      const placeName = row[placeNameColumnIndex];
+      const imageUrl = row[imageUrlColumnIndex];
+
+      if (stateName && placeName && imageUrl) {
+        if (!imageMapping[stateName]) {
+          imageMapping[stateName] = {};
+        }
+        if (!imageMapping[stateName][placeName]) {
+          imageMapping[stateName][placeName] = [];
+        }
+        imageMapping[stateName][placeName].push(imageUrl);
+      }
+    });
+
+    return imageMapping;
+  } catch (error) {
+    console.error("Error fetching image mapping from Google Sheets:", error);
+    return {};
+  }
+};
 
 const PlacesGrid = ({ route }) => {
   const { stateName } = route.params;
   const [places, setPlaces] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [favorites_en, setFavorites] = useState([]); // Renamed to favorites_en
+  const [imageMapping, setImageMapping] = useState({});
   const navigation = useNavigation();
 
   useEffect(() => {
-    // Fetch places data
-    getPlacesByState(stateName).then((placesData) => {
+    // Fetch image mapping data
+    const fetchData = async () => {
+      const imageMappingData = await fetchImageMappingFromGoogleSheets();
+      setImageMapping(imageMappingData);
+
+      // Fetch places data
+      const placesData = await getPlacesByState(stateName);
       if (Array.isArray(placesData) && placesData.length > 0) {
         const transformedData = placesData.map((placeName) => {
           const decodedPlaceName = decodeURIComponent(placeName);
-          const placeImage = imageMapping[stateName]?.[decodedPlaceName]?.[0] || null;
+          const placeImage = imageMappingData[stateName]?.[decodedPlaceName]?.[0] || null;
           return {
             "Name teerth": decodedPlaceName,
             image: placeImage ? decodeURIComponent(placeImage) : null,
@@ -30,7 +98,6 @@ const PlacesGrid = ({ route }) => {
         });
 
         const uniquePlacesMap = new Map();
-
         transformedData.forEach((place) => {
           const nameTeerth = place["Name teerth"];
           if (nameTeerth && !uniquePlacesMap.has(nameTeerth)) {
@@ -41,12 +108,14 @@ const PlacesGrid = ({ route }) => {
         const uniquePlaces = Array.from(uniquePlacesMap.values());
         setPlaces(uniquePlaces);
       }
-    });
+    };
+
+    fetchData();
 
     // Load favorites from AsyncStorage
     const loadFavorites = async () => {
       try {
-        const storedFavorites = await AsyncStorage.getItem('favorites_en'); // Ensure correct key is used here
+        const storedFavorites = await AsyncStorage.getItem("favorites_en"); // Ensure correct key is used here
         if (storedFavorites) {
           setFavorites(JSON.parse(storedFavorites));
         }
@@ -62,7 +131,7 @@ const PlacesGrid = ({ route }) => {
     // Save favorites to AsyncStorage whenever the favorites list changes
     const saveFavorites = async () => {
       try {
-        await AsyncStorage.setItem('favorites_en', JSON.stringify(favorites_en)); // Ensure correct key here
+        await AsyncStorage.setItem("favorites_en", JSON.stringify(favorites_en)); // Ensure correct key here
       } catch (error) {
         console.error("Failed to save favorites:", error);
       }
@@ -73,7 +142,7 @@ const PlacesGrid = ({ route }) => {
     }
   }, [favorites_en]);
 
-  const filteredPlaces = places.filter(place =>
+  const filteredPlaces = places.filter((place) =>
     place["Name teerth"].toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -82,18 +151,18 @@ const PlacesGrid = ({ route }) => {
       const updatedFavorites = prev.includes(placeName)
         ? prev.filter((name) => name !== placeName)
         : [...prev, placeName];
-      
+
       // Save updated favorites to AsyncStorage
       try {
-        AsyncStorage.setItem('favorites_en', JSON.stringify(updatedFavorites)); // Save to AsyncStorage with correct key
+        AsyncStorage.setItem("favorites_en", JSON.stringify(updatedFavorites)); // Save to AsyncStorage with correct key
       } catch (error) {
         console.error("Failed to save favorites:", error);
       }
-  
+
       return updatedFavorites;
     });
   };
-  
+
   const renderPlaceCard = ({ item }) => (
     <TouchableOpacity
       style={styles.cardContainer}
@@ -114,10 +183,7 @@ const PlacesGrid = ({ route }) => {
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item["Name teerth"]}</Text>
         <TouchableOpacity onPress={() => toggleFavorite(item["Name teerth"])} style={styles.favoriteButton}>
-          <HeartIcon
-            size={24}
-            color={favorites_en.includes(item["Name teerth"]) ? "red" : "gray"} // Use favorites_en here
-          />
+          <HeartIcon size={24} color={favorites_en.includes(item["Name teerth"]) ? "red" : "gray"} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -249,7 +315,7 @@ const styles = StyleSheet.create({
   },
   searchBar: {
     height: 40,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,

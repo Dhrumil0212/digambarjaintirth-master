@@ -4,11 +4,51 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import { useLanguage } from "../services/LanguageContext"; // Import language context
-import { getStates } from "../services/getStateENG"; // Fetch English state data
-import { getPlacesByState } from "../services/getStateENG"; // Fetch places by state
-import { imageMapping } from "../config/imageMapping"; // Import image mapping
+import { getStates, getPlacesByState } from "../services/getStateENG"; // Fetch state and places data from Google Sheets
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { useSearch } from "../services/SearchContext"; // Import search context
+
+// Function to fetch image mapping data from Google Sheets
+const fetchImageMappingFromGoogleSheets = async () => {
+  try {
+    const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
+    const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
+    const range = "ImageMappingEn!A1:Z100000"; // Adjust the range if needed
+
+    const response = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
+    );
+    const data = await response.json();
+
+    if (!data.values) {
+      console.error("No data found in the Google Sheets response");
+      return {};
+    }
+
+    const imageMapping = {};
+    const headerRow = data.values[0];
+    const stateNameColumnIndex = headerRow.indexOf('State');
+    const imageUrlColumnIndex = headerRow.indexOf('Image');
+
+    if (stateNameColumnIndex === -1 || imageUrlColumnIndex === -1) {
+      console.error("Required columns not found in the sheet.");
+      return {};
+    }
+
+    data.values.slice(1).forEach((row) => {
+      const stateName = row[stateNameColumnIndex];
+      const imageUrl = row[imageUrlColumnIndex];
+      if (stateName && imageUrl) {
+        imageMapping[stateName] = { image: imageUrl };
+      }
+    });
+
+    return imageMapping;
+  } catch (error) {
+    console.error("Error fetching image mapping from Google Sheets:", error);
+    return {};
+  }
+};
 
 const StatesGrid = () => {
   const { language, toggleLanguage } = useLanguage(); // Access language context
@@ -17,12 +57,17 @@ const StatesGrid = () => {
   const [filteredStates, setFilteredStates] = useState([]);
   const [allPlaces, setAllPlaces] = useState([]);
   const [filteredPlaces, setFilteredPlaces] = useState([]);
+  const [imageMapping, setImageMapping] = useState({});
   const navigation = useNavigation();
 
-  // Fetch states and places data when component mounts
+  // Fetch states, places, and image mapping data when component mounts
   useEffect(() => {
     const fetchStatesAndPlaces = async () => {
       try {
+        // Fetch image mapping data
+        const imageMappingData = await fetchImageMappingFromGoogleSheets();
+        setImageMapping(imageMappingData);
+
         // Fetch states data
         const statesData = await getStates();
         const sortedStates = statesData.sort((a, b) => a.name.localeCompare(b.name));
@@ -30,7 +75,7 @@ const StatesGrid = () => {
         // Update states with images
         const updatedStates = sortedStates.map((state) => ({
           ...state,
-          image: imageMapping[state.name]?.image || null,
+          image: imageMappingData[state.name]?.image || null,
         }));
 
         setStates(updatedStates);
@@ -47,7 +92,7 @@ const StatesGrid = () => {
 
         setAllPlaces(Array.from(allPlacesSet)); // Convert Set to array
       } catch (error) {
-        console.error("Error fetching states and places:", error);
+        console.error("Error fetching states, places, and image mapping:", error);
       }
     };
 
@@ -190,8 +235,7 @@ const styles = StyleSheet.create({
     top: hp(4),
     right: wp(4),
     backgroundColor: "#007bff",
-    
-   marginTop:hp(1),
+    marginTop: hp(1),
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
@@ -218,13 +262,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     paddingBottom: hp(2),
-    
   },
   cardContainer: {
     backgroundColor: "#fff",
     margin: wp(2),
     justifyContent: "space-between",
-    marginTop: hp(1), // Add margin top
+    marginTop: hp(1),
     marginBottom: hp(1)
   },
   cardContainerGrid: {
@@ -237,9 +280,7 @@ const styles = StyleSheet.create({
     shadowRadius: wp(2),
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
-    justifyContent: "space-between ", // Ensure content is centered in the card
-    // alignItems: "center", 
-    
+    justifyContent: "space-between",
   },
   cardContainerList: {
     width: "100%",
@@ -280,7 +321,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-
 
 export default StatesGrid;

@@ -109,7 +109,12 @@ const PlaceDetails = ({ route }) => {
   const isEmail = (str) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(str);
 
   // Helper function to check if the value is a URL
-  const isURL = (str) => /^(http|https):\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/.test(str);
+  const isURL = (str) => {
+    const urlPattern = /^(http|https):\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/;
+    const wwwPattern = /^www\.[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/;
+
+    return urlPattern.test(str) || wwwPattern.test(str); // Match both "http(s)://" and "www."
+  };
 
   // Render all fields from placeData
   const renderPlaceData = () => {
