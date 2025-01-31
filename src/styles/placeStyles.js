@@ -120,4 +120,13 @@ export const styles = StyleSheet.create({
     color: 'lightblue', // Light blue color
     textDecorationLine: 'underline', // Underline the text
   },
+  videoSlider: {
+    marginTop: hp(2),
+    marginBottom: hp(2),
+  },
+  videoContainer: {
+    marginRight: wp(2),
+    borderRadius: wp(5),
+    overflow: "hidden",
+  },
 });

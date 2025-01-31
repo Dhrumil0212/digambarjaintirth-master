@@ -41,7 +41,7 @@ const fetchImageMappingFromGoogleSheets = async () => {
     const headerRow = data.values[0];
     const stateNameColumnIndex = headerRow.indexOf("State");
     const placeNameColumnIndex = headerRow.indexOf("Place");
-    const imageUrlColumnIndex = headerRow.indexOf("Image");
+    const imageUrlColumnIndex = headerRow.indexOf("Link");
 
     if (stateNameColumnIndex === -1 || placeNameColumnIndex === -1 || imageUrlColumnIndex === -1) {
       console.error("Required columns not found in the sheet.");

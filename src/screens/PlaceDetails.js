@@ -12,6 +12,7 @@ import NetInfo from "@react-native-community/netinfo";
 import { imageMapping } from "../config/imageMapping";
 import { styles } from "../styles/placeStyles";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
+import YoutubePlayer from "react-native-youtube-iframe"; // Import YouTube player
 
 // Function to fetch place data from Google Sheets
 const fetchPlaceDataFromGoogleSheets = async (placeName, language) => {
@@ -60,10 +61,50 @@ const fetchPlaceDataFromGoogleSheets = async (placeName, language) => {
   }
 };
 
+// Function to fetch YouTube links from the YouTubeLinks sheet
+const fetchYouTubeLinksFromGoogleSheets = async (placeName) => {
+  try {
+    const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
+    const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
+    const range = "YouTube Links!A1:Z10000"; // Adjust the range if needed
+
+    const response = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
+    );
+    const data = await response.json();
+
+    if (!data.values) {
+      console.error("No data found in the YouTubeLinks sheet");
+      return [];
+    }
+
+    const headerRow = data.values[0];
+    const placeNameColumnIndex = headerRow.indexOf('Place');
+    const youtubeLinkColumnIndex = headerRow.indexOf('Video');
+
+    if (placeNameColumnIndex === -1 || youtubeLinkColumnIndex === -1) {
+      console.error("Required columns not found in the YouTubeLinks sheet.");
+      return [];
+    }
+
+    // Filter rows by place name
+    const youtubeLinks = data.values
+      .slice(1) // Skip the header row
+      .filter((row) => row[placeNameColumnIndex] === placeName)
+      .map((row) => row[youtubeLinkColumnIndex]);
+
+    return youtubeLinks.filter(link => link); // Filter out empty links
+  } catch (error) {
+    console.error("Error fetching YouTube links from Google Sheets:", error);
+    return [];
+  }
+};
+
 const PlaceDetails = ({ route }) => {
   const { placeName, language = "en" } = route.params; // Add language param
   const [placeData, setPlaceData] = useState(null);
   const [images, setImages] = useState([]);
+  const [youtubeLinks, setYoutubeLinks] = useState([]); // State for YouTube links
   const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
@@ -72,15 +113,16 @@ const PlaceDetails = ({ route }) => {
     });
 
     const fetchData = async () => {
-      const data = await fetchPlaceDataFromGoogleSheets(placeName, language);
-      if (data) {
-        setPlaceData(data);
-      } else {
-        setPlaceData(null); // Ensure state is set to null if no data found
+      const placeData = await fetchPlaceDataFromGoogleSheets(placeName, language);
+      const youtubeLinks = await fetchYouTubeLinksFromGoogleSheets(placeName);
+
+      if (placeData) {
+        setPlaceData(placeData);
       }
+      setYoutubeLinks(youtubeLinks); // Set YouTube links
     };
 
-    // Fetch place details
+    // Fetch place details and YouTube links
     if (placeName) {
       fetchData();
       loadImages(placeName);
@@ -172,7 +214,7 @@ const PlaceDetails = ({ route }) => {
   if (!isConnected) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>No internet connection. Please connect to the internet to view images.</Text>
+        <Text style={styles.errorText}>No internet connection. Please connect to the internet to view images and videos.</Text>
       </View>
     );
   }
@@ -181,6 +223,7 @@ const PlaceDetails = ({ route }) => {
     <ScrollView style={styles.container}>
       <Text style={styles.heading}>{placeData[0][5]}</Text>
 
+      {/* Image Slider */}
       <ScrollView horizontal style={styles.imageSlider}>
         {images.length > 0 ? (
           images.map((img, index) =>
@@ -195,12 +238,30 @@ const PlaceDetails = ({ route }) => {
         )}
       </ScrollView>
 
+      {/* YouTube Video Slider */}
+    
+
       <View style={styles.infoContainer}>
         {renderPlaceData()}
+        {youtubeLinks.length > 0 && (
+        <ScrollView horizontal style={styles.videoSlider}>
+          {youtubeLinks.map((link, index) => (
+            <View key={index} style={styles.videoContainer}>
+              <YoutubePlayer
+                height={200}
+                width={300}
+                videoId={link.split("v=")[1]} // Extract video ID from YouTube URL
+                play={false} // Autoplay is disabled by default
+              />
+            </View>
+          ))}
+        </ScrollView>
+      )}
 
         {placeData[0]?.[2] && placeData[0]?.[3] && (
           <TouchableOpacity style={styles.mapContainer} onPress={handleMapPress}>
             <Text style={styles.mapText}>Open in Google Maps</Text>
+
           </TouchableOpacity>
         )}
       </View>
