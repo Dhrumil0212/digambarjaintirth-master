@@ -316,6 +316,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: wp(2),
+    marginBottom:hp(1)
   },
   cardTitle: {
     fontSize: wp(4.5),
