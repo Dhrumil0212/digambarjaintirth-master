@@ -15,17 +15,19 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
-import { getPlacesByState } from "../services/getStateENG"; // Fetch places for the state
+import { getPlacesByState as getPlacesByStateEng } from "../services/getStateENG"; // Fetch places for the state (English)
+import { getPlacesByState as getPlacesByStateHin } from "../services/getStateHIN"; // Fetch places for the state (Hindi)
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { HeartIcon } from "react-native-heroicons/solid";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useLanguage } from "../services/LanguageContext"; // Import language context
 
 // Function to fetch image mapping data from Google Sheets
-const fetchImageMappingFromGoogleSheets = async () => {
+const fetchImageMappingFromGoogleSheets = async (language) => {
   try {
     const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
     const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
-    const range = "ImageMappingEn!A1:Z100000"; // Adjust the range if needed
+    const range = "ImageMapping!A1:Z100000"; // Adjust the range if needed
 
     const response = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
@@ -39,19 +41,27 @@ const fetchImageMappingFromGoogleSheets = async () => {
 
     const imageMapping = {};
     const headerRow = data.values[0];
-    const stateNameColumnIndex = headerRow.indexOf("State");
-    const placeNameColumnIndex = headerRow.indexOf("Place");
-    const imageUrlColumnIndex = headerRow.indexOf("Link");
+    const stateColumnIndex = headerRow.indexOf("State");
+    const rajyaColumnIndex = headerRow.indexOf("Rajya"); // Hindi equivalent of State
+    const placeColumnIndex = headerRow.indexOf("Place");
+    const tirthColumnIndex = headerRow.indexOf("Tirth"); // Hindi equivalent of Place
+    const imageColumnIndex = headerRow.indexOf("Link");
 
-    if (stateNameColumnIndex === -1 || placeNameColumnIndex === -1 || imageUrlColumnIndex === -1) {
+    if (
+      stateColumnIndex === -1 ||
+      rajyaColumnIndex === -1 ||
+      placeColumnIndex === -1 ||
+      tirthColumnIndex === -1 ||
+      imageColumnIndex === -1
+    ) {
       console.error("Required columns not found in the sheet.");
       return {};
     }
 
     data.values.slice(1).forEach((row) => {
-      const stateName = row[stateNameColumnIndex];
-      const placeName = row[placeNameColumnIndex];
-      const imageUrl = row[imageUrlColumnIndex];
+      const stateName = language === 'en' ? row[stateColumnIndex] : row[rajyaColumnIndex]; // Use Rajya for Hindi
+      const placeName = language === 'en' ? row[placeColumnIndex] : row[tirthColumnIndex]; // Use Tirth for Hindi
+      const imageUrl = row[imageColumnIndex];
 
       if (stateName && placeName && imageUrl) {
         if (!imageMapping[stateName]) {
@@ -64,6 +74,7 @@ const fetchImageMappingFromGoogleSheets = async () => {
       }
     });
 
+    // console.log("Image Mapping:", imageMapping); // Debug log
     return imageMapping;
   } catch (error) {
     console.error("Error fetching image mapping from Google Sheets:", error);
@@ -71,20 +82,25 @@ const fetchImageMappingFromGoogleSheets = async () => {
   }
 };
 
+
 const PlacesGrid = ({ route }) => {
   const { stateName } = route.params;
+  const { language } = useLanguage(); // Access language context
   const [places, setPlaces] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites_en, setFavorites] = useState([]); // Renamed to favorites_en
+  const [favorites, setFavorites] = useState([]);
   const [imageMapping, setImageMapping] = useState({});
   const navigation = useNavigation();
+
+  // Dynamically select the correct function based on language
+  const getPlacesByState = language === 'en' ? getPlacesByStateEng : getPlacesByStateHin;
 
   useEffect(() => {
     // Fetch image mapping data
     const fetchData = async () => {
-      const imageMappingData = await fetchImageMappingFromGoogleSheets();
+      const imageMappingData = await fetchImageMappingFromGoogleSheets(language);
       setImageMapping(imageMappingData);
-
+  
       // Fetch places data
       const placesData = await getPlacesByState(stateName);
       if (Array.isArray(placesData) && placesData.length > 0) {
@@ -92,30 +108,31 @@ const PlacesGrid = ({ route }) => {
           const decodedPlaceName = decodeURIComponent(placeName);
           const placeImage = imageMappingData[stateName]?.[decodedPlaceName]?.[0] || null;
           return {
-            "Name teerth": decodedPlaceName,
+            name: decodedPlaceName,
             image: placeImage ? decodeURIComponent(placeImage) : null,
           };
         });
-
+  
         const uniquePlacesMap = new Map();
         transformedData.forEach((place) => {
-          const nameTeerth = place["Name teerth"];
-          if (nameTeerth && !uniquePlacesMap.has(nameTeerth)) {
-            uniquePlacesMap.set(nameTeerth, place);
+          const name = place.name;
+          if (name && !uniquePlacesMap.has(name)) {
+            uniquePlacesMap.set(name, place);
           }
         });
-
+  
         const uniquePlaces = Array.from(uniquePlacesMap.values());
         setPlaces(uniquePlaces);
       }
     };
-
+  
     fetchData();
-
+  
     // Load favorites from AsyncStorage
     const loadFavorites = async () => {
       try {
-        const storedFavorites = await AsyncStorage.getItem("favorites_en"); // Ensure correct key is used here
+        const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
+        const storedFavorites = await AsyncStorage.getItem(favoritesKey);
         if (storedFavorites) {
           setFavorites(JSON.parse(storedFavorites));
         }
@@ -123,27 +140,27 @@ const PlacesGrid = ({ route }) => {
         console.error("Failed to load favorites:", error);
       }
     };
-
+  
     loadFavorites();
-  }, [stateName]);
-
+  }, [stateName, language]);
   useEffect(() => {
     // Save favorites to AsyncStorage whenever the favorites list changes
     const saveFavorites = async () => {
       try {
-        await AsyncStorage.setItem("favorites_en", JSON.stringify(favorites_en)); // Ensure correct key here
+        const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
+        await AsyncStorage.setItem(favoritesKey, JSON.stringify(favorites));
       } catch (error) {
         console.error("Failed to save favorites:", error);
       }
     };
 
-    if (favorites_en.length > 0) {
+    if (favorites.length > 0) {
       saveFavorites();
     }
-  }, [favorites_en]);
+  }, [favorites, language]);
 
   const filteredPlaces = places.filter((place) =>
-    place["Name teerth"].toLowerCase().includes(searchQuery.toLowerCase())
+    place.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const toggleFavorite = async (placeName) => {
@@ -154,7 +171,8 @@ const PlacesGrid = ({ route }) => {
 
       // Save updated favorites to AsyncStorage
       try {
-        AsyncStorage.setItem("favorites_en", JSON.stringify(updatedFavorites)); // Save to AsyncStorage with correct key
+        const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
+        AsyncStorage.setItem(favoritesKey, JSON.stringify(updatedFavorites));
       } catch (error) {
         console.error("Failed to save favorites:", error);
       }
@@ -167,9 +185,10 @@ const PlacesGrid = ({ route }) => {
     <TouchableOpacity
       style={styles.cardContainer}
       onPress={() =>
-        navigation.navigate("PlaceDetails", {
-          placeName: item["Name teerth"],
+        navigation.navigate("PlaceDetails", { // Use "PlaceDetails" for both English and Hindi
+          placeName: item.name,
           stateName: stateName,
+          language: language, // Pass the current language to PlaceDetails
         })
       }
     >
@@ -181,24 +200,24 @@ const PlacesGrid = ({ route }) => {
         </View>
       )}
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{item["Name teerth"]}</Text>
-        <TouchableOpacity onPress={() => toggleFavorite(item["Name teerth"])} style={styles.favoriteButton}>
-          <HeartIcon size={24} color={favorites_en.includes(item["Name teerth"]) ? "red" : "gray"} />
+        <Text style={styles.cardTitle}>{item.name}</Text>
+        <TouchableOpacity onPress={() => toggleFavorite(item.name)} style={styles.favoriteButton}>
+          <HeartIcon size={24} color={favorites.includes(item.name) ? "red" : "gray"} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
 
   const sortedPlaces = filteredPlaces.sort((a, b) => {
-    const isAFavorite = favorites_en.includes(a["Name teerth"]);
-    const isBFavorite = favorites_en.includes(b["Name teerth"]);
+    const isAFavorite = favorites.includes(a.name);
+    const isBFavorite = favorites.includes(b.name);
     if (isAFavorite && !isBFavorite) {
-      return -1;
+      return -1; // Move favorites to the top
     }
     if (!isAFavorite && isBFavorite) {
-      return 1;
+      return 1; // Keep non-favorites below
     }
-    return 0;
+    return 0; // Keep the order unchanged if both are either favorite or non-favorite
   });
 
   return (
@@ -210,12 +229,12 @@ const PlacesGrid = ({ route }) => {
       <SafeAreaView style={styles.safeAreaView}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <View style={styles.content}>
-            <Text style={styles.heading}>{stateName} Tirthkshetras</Text>
+            <Text style={styles.heading}>{stateName} {language === 'en' ? 'Tirthkshetras' : 'तीर्थक्षेत्र'}</Text>
 
             {/* Search Bar */}
             <TextInput
               style={styles.searchBar}
-              placeholder="Search"
+              placeholder={language === 'en' ? "Search" : "तीर्थक्षेत्र खोजें"}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
@@ -223,13 +242,13 @@ const PlacesGrid = ({ route }) => {
             {/* List */}
             <View style={styles.listContainer}>
               {filteredPlaces.length === 0 && searchQuery.length > 0 ? (
-                <Text style={styles.noResults}>No places found</Text>
+                <Text style={styles.noResults}>{language === 'en' ? 'No places found' : 'कोई स्थान नहीं मिला'}</Text>
               ) : (
                 <FlatList
                   data={sortedPlaces}
                   renderItem={renderPlaceCard}
                   numColumns={2}
-                  keyExtractor={(item) => item["Name teerth"]}
+                  keyExtractor={(item) => item.name}
                   contentContainerStyle={styles.grid}
                 />
               )}
@@ -263,6 +282,7 @@ const styles = StyleSheet.create({
   grid: {
     alignItems: "flex-start",
     justifyContent: "flex-start",
+    marginTop: hp(2),
   },
   cardContainer: {
     backgroundColor: "#fff",
@@ -275,7 +295,6 @@ const styles = StyleSheet.create({
     shadowRadius: wp(2),
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
-    marginBottom: hp(1),
   },
   cardImage: {
     width: "100%",
@@ -297,7 +316,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    padding: wp(2),
+    paddingHorizontal: wp(2),
+    paddingVertical: hp(1),
   },
   cardTitle: {
     fontSize: wp(4),
@@ -330,8 +350,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    marginTop: hp(1),
-    marginBottom: wp(2),
+    marginTop: hp(2),
   },
 });
 

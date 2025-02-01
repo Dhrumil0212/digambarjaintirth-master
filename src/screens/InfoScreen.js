@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Linking, FlatList, Dim
 const otherDevelopers = [
   { id: '3', name: 'आचार्य श्री विद्यासागर जी महाराज', image: 'https://i.imgur.com/qRiNAvr.png' },
   { id: '4', name: 'आशीर्वाद :आचार्य श्री समय सागर जी महाराज', image: 'https://i.imgur.com/l46EH2N.jpeg' },
-  { id: '1', name: 'मार्गदर्शन: पूज्य मुनि श्री अभय सागर जी महाराज', image: 'https://vidyasagarmedia.s3.us-east-2.amazonaws.com/monthly_2023_02/large.(12).JPG.e9b47927b0e219572d0876f9d7980f0b.JPG' },
+  { id: '1', name: 'मार्गदर्शन: निर्यापक श्रमण मुनि श्री अभय सागर जी महाराज', image: 'https://vidyasagarmedia.s3.us-east-2.amazonaws.com/monthly_2023_02/large.(12).JPG.e9b47927b0e219572d0876f9d7980f0b.JPG' },
   { id: '2', name: 'प्रेरणा स्रोत : ब्र.अनिल कुमार जैन', image: 'https://i.imgur.com/myI1zBY.jpeg' },
   // Add more developer objects if needed
 ];

@@ -4,16 +4,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useNavigation } from "@react-navigation/native";
 import { useLanguage } from "../services/LanguageContext"; // Import language context
-import { getStates, getPlacesByState } from "../services/getStateENG"; // Fetch state and places data from Google Sheets
+import { getStates as getStatesEng, getPlacesByState as getPlacesByStateEng } from "../services/getStateENG"; // Fetch state and places data from Google Sheets (English)
+import { getStates as getStatesHin, getPlacesByState as getPlacesByStateHin } from "../services/getStateHIN"; // Fetch state and places data from Google Sheets (Hindi)
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { useSearch } from "../services/SearchContext"; // Import search context
 
 // Function to fetch image mapping data from Google Sheets
-const fetchImageMappingFromGoogleSheets = async () => {
+const fetchImageMappingFromGoogleSheets = async (language) => {
   try {
     const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
     const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
-    const range = "ImageMappingEn!A1:Z100000"; // Adjust the range if needed
+    const range = "ImageMapping!A1:Z100000"; // Adjust the range if needed
 
     const response = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
@@ -27,22 +28,24 @@ const fetchImageMappingFromGoogleSheets = async () => {
 
     const imageMapping = {};
     const headerRow = data.values[0];
-    const stateNameColumnIndex = headerRow.indexOf('State');
-    const imageUrlColumnIndex = headerRow.indexOf('Image');
+    const stateColumnIndex = headerRow.indexOf("State");
+    const rajyaColumnIndex = headerRow.indexOf("Rajya");
+    const imageColumnIndex = headerRow.indexOf("Image");
 
-    if (stateNameColumnIndex === -1 || imageUrlColumnIndex === -1) {
+    if (stateColumnIndex === -1 || imageColumnIndex === -1) {
       console.error("Required columns not found in the sheet.");
       return {};
     }
 
     data.values.slice(1).forEach((row) => {
-      const stateName = row[stateNameColumnIndex];
-      const imageUrl = row[imageUrlColumnIndex];
+      const stateName = language === 'en' ? row[stateColumnIndex] : row[rajyaColumnIndex];
+      const imageUrl = row[imageColumnIndex];
       if (stateName && imageUrl) {
         imageMapping[stateName] = { image: imageUrl };
       }
     });
 
+    // console.log("Image Mapping:", imageMapping); // Debug log
     return imageMapping;
   } catch (error) {
     console.error("Error fetching image mapping from Google Sheets:", error);
@@ -65,10 +68,13 @@ const StatesGrid = () => {
     const fetchStatesAndPlaces = async () => {
       try {
         // Fetch image mapping data
-        const imageMappingData = await fetchImageMappingFromGoogleSheets();
+        const imageMappingData = await fetchImageMappingFromGoogleSheets(language);
         setImageMapping(imageMappingData);
 
-        // Fetch states data
+        // Fetch states data based on language
+        const getStates = language === 'en' ? getStatesEng : getStatesHin;
+        const getPlacesByState = language === 'en' ? getPlacesByStateEng : getPlacesByStateHin;
+
         const statesData = await getStates();
         const sortedStates = statesData.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -78,6 +84,7 @@ const StatesGrid = () => {
           image: imageMappingData[state.name]?.image || null,
         }));
 
+        // console.log("Updated States:", updatedStates); // Debug log
         setStates(updatedStates);
         setFilteredStates(updatedStates);
 
@@ -117,11 +124,7 @@ const StatesGrid = () => {
 
   // Handle language toggle
   const handleLanguageToggle = () => {
-    toggleLanguage();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: language === 'en' ? 'StatesGridHi' : 'StatesGrid' }],
-    });
+    toggleLanguage(); // Simply toggle the language
   };
 
   // Render state card
@@ -129,7 +132,7 @@ const StatesGrid = () => {
     <TouchableOpacity
       style={[styles.cardContainer, searchQuery ? styles.cardContainerList : styles.cardContainerGrid]}
       onPress={() =>
-        navigation.navigate(language === 'en' ? "PlacesGrid" : "PlacesGridHi", { stateName: item.name })
+        navigation.navigate("PlacesGrid", { stateName: item.name, language }) // Navigate to PlacesGrid
       }
     >
       {item.image ? (
@@ -150,7 +153,7 @@ const StatesGrid = () => {
     <TouchableOpacity
       style={[styles.cardContainer, searchQuery ? styles.cardContainerList : styles.cardContainerGrid]}
       onPress={() =>
-        navigation.navigate(language === 'en' ? "PlaceDetails" : "PlaceDetailsHi", { placeName: item })
+        navigation.navigate("PlaceDetails", { placeName: item, language }) // Navigate to PlaceDetails
       }
     >
       <View style={styles.cardContent}>

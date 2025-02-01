@@ -6,17 +6,14 @@ import { Ionicons } from 'react-native-vector-icons'; // For icons
 import { LanguageProvider, useLanguage } from './src/services/LanguageContext'; // Import language context
 import { SearchProvider } from './src/services/SearchContext'; // Import SearchContext for global search
 
-// Import screens for both English and Hindi versions
-import StatesGrid from './src/screens/StatesGrid'; // English Screen
-import StatesGridHi from './src/screens/StatesGridHi'; // Hindi Screen
-import PlacesGrid from './src/screens/PlacesGrid'; // English Screen
-import PlacesGridHi from './src/screens/PlacesGridHi'; // Hindi Screen
-import PlaceDetails from './src/screens/PlaceDetails'; // English Screen
-import PlaceDetailsHi from './src/screens/PlaceDetailsHi'; // Hindi Screen
+// Import unified screens
+import StatesGrid from './src/screens/StatesGrid'; // Unified StatesGrid
+import PlacesGrid from './src/screens/PlacesGrid'; // Unified PlacesGrid
+import PlaceDetails from './src/screens/PlaceDetails'; // Unified PlaceDetails
 
 // Import new screens for Bottom Navigation
-import FavoritesScreen from './src/screens/FavoritesScreen'; // New screen for Favorites
-import InfoScreen from './src/screens/InfoScreen'; // New screen for Info
+import FavoritesScreen from './src/screens/FavoritesScreen'; // Unified FavoritesScreen
+import InfoScreen from './src/screens/InfoScreen'; // Unified InfoScreen
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator(); // Create Bottom Tab Navigator
@@ -24,7 +21,7 @@ const Tab = createBottomTabNavigator(); // Create Bottom Tab Navigator
 const BottomTabs = () => {
   return (
     <Tab.Navigator 
-      screenOptions={ ({ route }) => ({
+      screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
           let iconName;
           if (route.name === 'Home') {
@@ -36,9 +33,8 @@ const BottomTabs = () => {
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        headerShown:false
+        headerShown: false,
       })}
-      
     >
       <Tab.Screen name="Home" component={AppNavigator} />
       <Tab.Screen name="Favorites" component={FavoritesScreen} />
@@ -52,18 +48,13 @@ const AppNavigator = () => {
 
   return (
     <Stack.Navigator
-      initialRouteName={language === 'en' ? 'StatesGrid' : 'StatesGridHi'}
+      initialRouteName="StatesGrid"
       screenOptions={{ headerShown: false }}
     >
-      {/* Language-based screen routing with unique key */}
+      {/* Unified screens with language-based content */}
       <Stack.Screen
         name="StatesGrid"
         component={StatesGrid}
-        key={language === 'en' ? 'StatesGrid-en' : 'StatesGrid-hi'}
-      />
-      <Stack.Screen
-        name="StatesGridHi"
-        component={StatesGridHi}
         key={language === 'en' ? 'StatesGrid-en' : 'StatesGrid-hi'}
       />
       <Stack.Screen
@@ -72,18 +63,8 @@ const AppNavigator = () => {
         key={language === 'en' ? 'PlacesGrid-en' : 'PlacesGrid-hi'}
       />
       <Stack.Screen
-        name="PlacesGridHi"
-        component={PlacesGridHi}
-        key={language === 'en' ? 'PlacesGrid-en' : 'PlacesGrid-hi'}
-      />
-      <Stack.Screen
         name="PlaceDetails"
         component={PlaceDetails}
-        key={language === 'en' ? 'PlaceDetails-en' : 'PlaceDetails-hi'}
-      />
-      <Stack.Screen
-        name="PlaceDetailsHi"
-        component={PlaceDetailsHi}
         key={language === 'en' ? 'PlaceDetails-en' : 'PlaceDetails-hi'}
       />
     </Stack.Navigator>

@@ -9,10 +9,85 @@ import {
   TouchableOpacity,
 } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
-import { imageMapping } from "../config/imageMapping";
 import { styles } from "../styles/placeStyles";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import YoutubePlayer from "react-native-youtube-iframe"; // Import YouTube player
+
+// Function to fetch image mapping data from Google Sheets
+const fetchImageMappingFromGoogleSheets = async (language) => {
+  try {
+    const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
+    const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
+    const range = "ImageMapping!A1:Z100000"; // Adjust the range if needed
+
+    const response = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
+    );
+    const data = await response.json();
+
+    if (!data.values) {
+      console.error("No data found in the Google Sheets response");
+      return {};
+    }
+
+    const imageMapping = {};
+    const headerRow = data.values[0];
+    const stateColumnIndex = headerRow.indexOf("State");
+    const placeColumnIndex = headerRow.indexOf("Place");
+    const tirthColumnIndex = headerRow.indexOf("Tirth");
+    const rajyaColumnIndex = headerRow.indexOf("Rajya");
+    const imageColumnIndex = headerRow.indexOf("Image");
+    const linkColumnIndex = headerRow.indexOf("Link");
+
+    if (
+      stateColumnIndex === -1 ||
+      placeColumnIndex === -1 ||
+      tirthColumnIndex === -1 ||
+      rajyaColumnIndex === -1 ||
+      imageColumnIndex === -1 ||
+      linkColumnIndex === -1
+    ) {
+      console.error("Required columns not found in the sheet.");
+      return {};
+    }
+
+    data.values.slice(1).forEach((row) => {
+      const state = row[stateColumnIndex];
+      const place = row[placeColumnIndex];
+      const tirth = row[tirthColumnIndex];
+      const rajya = row[rajyaColumnIndex];
+      const image = row[imageColumnIndex];
+      const link = row[linkColumnIndex];
+
+      if (language === 'en') {
+        if (state && place && image) {
+          if (!imageMapping[state]) {
+            imageMapping[state] = {};
+          }
+          if (!imageMapping[state][place]) {
+            imageMapping[state][place] = [];
+          }
+          imageMapping[state][place].push(link);
+        }
+      } else if (language === 'hi') {
+        if (tirth && rajya && image) {
+          if (!imageMapping[rajya]) {
+            imageMapping[rajya] = {};
+          }
+          if (!imageMapping[rajya][tirth]) {
+            imageMapping[rajya][tirth] = [];
+          }
+          imageMapping[rajya][tirth].push(link);
+        }
+      }
+    });
+
+    return imageMapping;
+  } catch (error) {
+    console.error("Error fetching image mapping from Google Sheets:", error);
+    return {};
+  }
+};
 
 // Function to fetch place data from Google Sheets
 const fetchPlaceDataFromGoogleSheets = async (placeName, language) => {
@@ -25,7 +100,6 @@ const fetchPlaceDataFromGoogleSheets = async (placeName, language) => {
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
     );
     const data = await response.json();
-    // console.log("API Response:", data); // Log the full API response for debugging
 
     if (!data.values) {
       console.error("No data found in the Google Sheets response");
@@ -33,7 +107,7 @@ const fetchPlaceDataFromGoogleSheets = async (placeName, language) => {
     }
 
     const headerRow = data.values[0];
-    const nameColumnIndex = language === 'en' ? headerRow.indexOf('Name teerth') : headerRow.indexOf('Naam');
+    const nameColumnIndex = language === 'hi' ? headerRow.indexOf('Naam') : headerRow.indexOf('Name teerth');
     const latitudeColumnIndex = headerRow.indexOf('latitude');
     const longitudeColumnIndex = headerRow.indexOf('longitude');
     const stateColumnIndex = headerRow.indexOf('State');
@@ -62,7 +136,7 @@ const fetchPlaceDataFromGoogleSheets = async (placeName, language) => {
 };
 
 // Function to fetch YouTube links from the YouTubeLinks sheet
-const fetchYouTubeLinksFromGoogleSheets = async (placeName) => {
+const fetchYouTubeLinksFromGoogleSheets = async (placeName, language) => {
   try {
     const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
     const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
@@ -79,7 +153,7 @@ const fetchYouTubeLinksFromGoogleSheets = async (placeName) => {
     }
 
     const headerRow = data.values[0];
-    const placeNameColumnIndex = headerRow.indexOf('Place');
+    const placeNameColumnIndex = language === 'hi' ? headerRow.indexOf('PlaceHin') : headerRow.indexOf('Place');
     const youtubeLinkColumnIndex = headerRow.indexOf('Video');
 
     if (placeNameColumnIndex === -1 || youtubeLinkColumnIndex === -1) {
@@ -101,7 +175,7 @@ const fetchYouTubeLinksFromGoogleSheets = async (placeName) => {
 };
 
 const PlaceDetails = ({ route }) => {
-  const { placeName, language = "en" } = route.params; // Add language param
+  const { placeName, language = "en" } = route.params; // Default to English
   const [placeData, setPlaceData] = useState(null);
   const [images, setImages] = useState([]);
   const [youtubeLinks, setYoutubeLinks] = useState([]); // State for YouTube links
@@ -114,38 +188,32 @@ const PlaceDetails = ({ route }) => {
 
     const fetchData = async () => {
       const placeData = await fetchPlaceDataFromGoogleSheets(placeName, language);
-      const youtubeLinks = await fetchYouTubeLinksFromGoogleSheets(placeName);
+      const youtubeLinks = await fetchYouTubeLinksFromGoogleSheets(placeName, language);
+      const imageMappingData = await fetchImageMappingFromGoogleSheets(language);
 
       if (placeData) {
         setPlaceData(placeData);
       }
       setYoutubeLinks(youtubeLinks); // Set YouTube links
+
+      // Load images for the place from imageMapping
+      const foundImages = [];
+      Object.keys(imageMappingData).forEach((stateOrRajya) => {
+        if (imageMappingData[stateOrRajya][placeName]) {
+          foundImages.push(...imageMappingData[stateOrRajya][placeName]);
+        }
+      });
+
+      setImages(foundImages);
     };
 
-    // Fetch place details and YouTube links
+    // Fetch place details, YouTube links, and image mapping
     if (placeName) {
       fetchData();
-      loadImages(placeName);
     }
 
     return () => unsubscribe();
   }, [placeName, language]);
-
-  // Load images for the place from imageMapping
-  const loadImages = (place) => {
-    let foundImages = [];
-    Object.keys(imageMapping).forEach((state) => {
-      if (imageMapping[state][place]) {
-        foundImages = imageMapping[state][place];
-      }
-    });
-
-    if (foundImages.length > 0) {
-      setImages(foundImages);
-    } else {
-      setImages([]);
-    }
-  };
 
   // Helper function to check if the value is an email
   const isEmail = (str) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(str);
@@ -163,9 +231,8 @@ const PlaceDetails = ({ route }) => {
     if (!placeData) return null;
 
     return placeData.map((row, rowIndex) => {
-      // Get translated key and value from the row
-      const translatedKey = row[1]; // This should be the translated key (e.g., "Phone", "Email")
-      const translatedValue = row[3]; // This should be the translated value (the actual data like phone number, email, etc.)
+      const translatedKey = language === 'hi' ? row[0] : row[1]; // Translated key (e.g., "Phone", "Email")
+      const translatedValue = language === 'hi' ? row[2] : row[3]; // Translated value (the actual data like phone number, email, etc.)
 
       let onPress = null;
 
@@ -198,7 +265,7 @@ const PlaceDetails = ({ route }) => {
         console.error("Error opening map:", err);
       });
     } else {
-      alert("Map coordinates not available.");
+      alert(language === 'hi' ? "मानचित्र निर्देशांक उपलब्ध नहीं हैं।" : "Map coordinates not available.");
     }
   };
 
@@ -206,7 +273,9 @@ const PlaceDetails = ({ route }) => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#343a40" />
-        <Text style={styles.loadingText}>Loading place details...</Text>
+        <Text style={styles.loadingText}>
+          {language === 'hi' ? "स्थान विवरण लोड हो रहा है..." : "Loading place details..."}
+        </Text>
       </View>
     );
   }
@@ -214,14 +283,19 @@ const PlaceDetails = ({ route }) => {
   if (!isConnected) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>No internet connection. Please connect to the internet to view images and videos.</Text>
+        <Text style={styles.errorText}>
+          {language === 'hi' 
+            ? "इंटरनेट कनेक्शन नहीं है। कृपया चित्र और वीडियो देखने के लिए इंटरनेट से कनेक्ट करें।" 
+            : "No internet connection. Please connect to the internet to view images and videos."
+          }
+        </Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.heading}>{placeData[0][5]}</Text>
+      <Text style={styles.heading}>{language === 'hi' ? placeData[0][6] : placeData[0][5]}</Text>
 
       {/* Image Slider */}
       <ScrollView horizontal style={styles.imageSlider}>
@@ -230,20 +304,20 @@ const PlaceDetails = ({ route }) => {
             img ? (
               <Image key={index} source={{ uri: img }} style={styles.image} />
             ) : (
-              <Text key={index} style={styles.noImageText}>Image not available</Text>
+              <Text key={index} style={styles.noImageText}>
+                {language === 'hi' ? "चित्र उपलब्ध नहीं है" : "Image not available"}
+              </Text>
             )
           )
         ) : (
-          <Text style={styles.noImageText}>No images available</Text>
+          <Text style={styles.noImageText}>
+            {language === 'hi' ? "कोई चित्र उपलब्ध नहीं है" : "No images available"}
+          </Text>
         )}
       </ScrollView>
 
       {/* YouTube Video Slider */}
-    
-
-      <View style={styles.infoContainer}>
-        {renderPlaceData()}
-        {youtubeLinks.length > 0 && (
+      {youtubeLinks.length > 0 && (
         <ScrollView horizontal style={styles.videoSlider}>
           {youtubeLinks.map((link, index) => (
             <View key={index} style={styles.videoContainer}>
@@ -258,10 +332,13 @@ const PlaceDetails = ({ route }) => {
         </ScrollView>
       )}
 
+      <View style={styles.infoContainer}>
+        {renderPlaceData()}
         {placeData[0]?.[2] && placeData[0]?.[3] && (
           <TouchableOpacity style={styles.mapContainer} onPress={handleMapPress}>
-            <Text style={styles.mapText}>Open in Google Maps</Text>
-
+            <Text style={styles.mapText}>
+              {language === 'hi' ? "गूगल मैप्स में खोलें" : "Open in Google Maps"}
+            </Text>
           </TouchableOpacity>
         )}
       </View>

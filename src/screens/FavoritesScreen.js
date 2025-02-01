@@ -34,7 +34,7 @@ const FavoritesScreen = () => {
   // Function to handle navigation to the PlaceDetails screen when a favorite is clicked
   const handlePlaceClick = (placeName) => {
     // Navigate to the PlaceDetails screen and pass the place name as a parameter
-    navigation.navigate('PlaceDetails', { placeName });
+    navigation.navigate('PlaceDetails', { placeName, language });
   };
 
   // Function to handle toggling the favorite status (add/remove) of a place
@@ -115,24 +115,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
-    // paddingHorizontal: 16,
     paddingVertical: 20,
-    marginTop:35 
+    marginTop: 35,
   },
   heading: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop:20,
+    marginTop: 20,
     marginBottom: 20,
   },
   listContainer: {
-    // marginTop: 20,
+    marginTop: 20,
   },
   cardContainer: {
     backgroundColor: "#fff",
     borderRadius: 8,
-    marginTop:5,
+    marginTop: 5,
     marginBottom: 5,
     padding: 15,
     flexDirection: "row",
