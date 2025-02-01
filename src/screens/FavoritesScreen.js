@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { HeartIcon } from 'react-native-heroicons/solid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
 import { useLanguage } from '../services/LanguageContext';
 
 const FavoritesScreen = () => {
@@ -11,85 +11,87 @@ const FavoritesScreen = () => {
   const navigation = useNavigation();
   const { language, toggleLanguage } = useLanguage();
 
-  // Fetch image mapping data when the component mounts or language changes
-  useEffect(() => {
-    const fetchImageMapping = async () => {
-      try {
-        const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
-        const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg"; // Your Google Sheets ID
-        const range = "ImageMapping!A1:Z100000"; // Adjust the range if needed
+  // Function to fetch image mapping data from Google Sheets
+  const fetchImageMapping = async () => {
+    try {
+      const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
+      const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg"; // Your Google Sheets ID
+      const range = "ImageMapping!A1:Z100000"; // Adjust the range if needed
 
-        const response = await fetch(
-          `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
-        );
-        const data = await response.json();
+      const response = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
+      );
+      const data = await response.json();
 
-        if (!data.values) {
-          console.error("No data found in the Google Sheets response");
-          return {};
-        }
+      if (!data.values) {
+        console.error("No data found in the Google Sheets response");
+        return {};
+      }
 
-        const imageMapping = {};
-        const headerRow = data.values[0];
-        const stateColumnIndex = headerRow.indexOf("State");
-        const rajyaColumnIndex = headerRow.indexOf("Rajya"); // Hindi equivalent of State
-        const placeColumnIndex = headerRow.indexOf("Place");
-        const tirthColumnIndex = headerRow.indexOf("Tirth"); // Hindi equivalent of Place
-        const imageColumnIndex = headerRow.indexOf("Link");
+      const imageMapping = {};
+      const headerRow = data.values[0];
+      const stateColumnIndex = headerRow.indexOf("State");
+      const rajyaColumnIndex = headerRow.indexOf("Rajya"); // Hindi equivalent of State
+      const placeColumnIndex = headerRow.indexOf("Place");
+      const tirthColumnIndex = headerRow.indexOf("Tirth"); // Hindi equivalent of Place
+      const imageColumnIndex = headerRow.indexOf("Link");
 
-        if (
-          stateColumnIndex === -1 ||
-          rajyaColumnIndex === -1 ||
-          placeColumnIndex === -1 ||
-          tirthColumnIndex === -1 ||
-          imageColumnIndex === -1
-        ) {
-          console.error("Required columns not found in the sheet.");
-          return {};
-        }
+      if (
+        stateColumnIndex === -1 ||
+        rajyaColumnIndex === -1 ||
+        placeColumnIndex === -1 ||
+        tirthColumnIndex === -1 ||
+        imageColumnIndex === -1
+      ) {
+        console.error("Required columns not found in the sheet.");
+        return {};
+      }
 
-        data.values.slice(1).forEach((row) => {
-          const stateName = language === 'en' ? row[stateColumnIndex] : row[rajyaColumnIndex]; // Use Rajya for Hindi
-          const placeName = language === 'en' ? row[placeColumnIndex] : row[tirthColumnIndex]; // Use Tirth for Hindi
-          const imageUrl = row[imageColumnIndex];
+      data.values.slice(1).forEach((row) => {
+        const stateName = language === 'en' ? row[stateColumnIndex] : row[rajyaColumnIndex]; // Use Rajya for Hindi
+        const placeName = language === 'en' ? row[placeColumnIndex] : row[tirthColumnIndex]; // Use Tirth for Hindi
+        const imageUrl = row[imageColumnIndex];
 
-          if (stateName && placeName && imageUrl) {
-            if (!imageMapping[stateName]) {
-              imageMapping[stateName] = {};
-            }
-            if (!imageMapping[stateName][placeName]) {
-              imageMapping[stateName][placeName] = [];
-            }
-            imageMapping[stateName][placeName].push(imageUrl);
+        if (stateName && placeName && imageUrl) {
+          if (!imageMapping[stateName]) {
+            imageMapping[stateName] = {};
           }
-        });
-
-        setImageMapping(imageMapping);
-      } catch (error) {
-        console.error("Error fetching image mapping from Google Sheets:", error);
-      }
-    };
-
-    fetchImageMapping();
-
-    // Load favorites from AsyncStorage
-    const loadFavorites = async () => {
-      try {
-        const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
-        const storedFavorites = await AsyncStorage.getItem(favoritesKey);
-        
-        if (storedFavorites) {
-          setFavorites(JSON.parse(storedFavorites));
-        } else {
-          setFavorites([]);
+          if (!imageMapping[stateName][placeName]) {
+            imageMapping[stateName][placeName] = [];
+          }
+          imageMapping[stateName][placeName].push(imageUrl);
         }
-      } catch (error) {
-        console.error("Failed to load favorites:", error);
-      }
-    };
+      });
 
-    loadFavorites();
-  }, [language]);
+      setImageMapping(imageMapping);
+    } catch (error) {
+      console.error("Error fetching image mapping from Google Sheets:", error);
+    }
+  };
+
+  // Function to load favorites from AsyncStorage
+  const loadFavorites = async () => {
+    try {
+      const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
+      const storedFavorites = await AsyncStorage.getItem(favoritesKey);
+      
+      if (storedFavorites) {
+        setFavorites(JSON.parse(storedFavorites));
+      } else {
+        setFavorites([]);
+      }
+    } catch (error) {
+      console.error("Failed to load favorites:", error);
+    }
+  };
+
+  // Use useFocusEffect to re-fetch data every time the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchImageMapping();
+      loadFavorites();
+    }, [language]) // Re-run when language changes
+  );
 
   // Function to get the translated place name based on the current language
   const getTranslatedPlaceName = (placeName) => {
