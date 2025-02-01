@@ -1,58 +1,120 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { HeartIcon } from 'react-native-heroicons/solid'; // Heart Icon for favorites
-import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage for storing favorites
-import { useNavigation } from '@react-navigation/native'; // Navigation hook
-import { useLanguage } from '../services/LanguageContext'; // Language context
+import { HeartIcon } from 'react-native-heroicons/solid';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { useLanguage } from '../services/LanguageContext';
 
 const FavoritesScreen = () => {
-  const [favorites, setFavorites] = useState([]);  // State to store favorites
-  const navigation = useNavigation();  // Access the navigation prop
-  const { language, toggleLanguage } = useLanguage();  // Language context
+  const [favorites, setFavorites] = useState([]);
+  const [imageMapping, setImageMapping] = useState({}); // Store image mapping data
+  const navigation = useNavigation();
+  const { language, toggleLanguage } = useLanguage();
 
-  // Load favorites based on current language when the component mounts or language changes
+  // Fetch image mapping data when the component mounts or language changes
   useEffect(() => {
+    const fetchImageMapping = async () => {
+      try {
+        const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key
+        const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg"; // Your Google Sheets ID
+        const range = "ImageMapping!A1:Z100000"; // Adjust the range if needed
+
+        const response = await fetch(
+          `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
+        );
+        const data = await response.json();
+
+        if (!data.values) {
+          console.error("No data found in the Google Sheets response");
+          return {};
+        }
+
+        const imageMapping = {};
+        const headerRow = data.values[0];
+        const stateColumnIndex = headerRow.indexOf("State");
+        const rajyaColumnIndex = headerRow.indexOf("Rajya"); // Hindi equivalent of State
+        const placeColumnIndex = headerRow.indexOf("Place");
+        const tirthColumnIndex = headerRow.indexOf("Tirth"); // Hindi equivalent of Place
+        const imageColumnIndex = headerRow.indexOf("Link");
+
+        if (
+          stateColumnIndex === -1 ||
+          rajyaColumnIndex === -1 ||
+          placeColumnIndex === -1 ||
+          tirthColumnIndex === -1 ||
+          imageColumnIndex === -1
+        ) {
+          console.error("Required columns not found in the sheet.");
+          return {};
+        }
+
+        data.values.slice(1).forEach((row) => {
+          const stateName = language === 'en' ? row[stateColumnIndex] : row[rajyaColumnIndex]; // Use Rajya for Hindi
+          const placeName = language === 'en' ? row[placeColumnIndex] : row[tirthColumnIndex]; // Use Tirth for Hindi
+          const imageUrl = row[imageColumnIndex];
+
+          if (stateName && placeName && imageUrl) {
+            if (!imageMapping[stateName]) {
+              imageMapping[stateName] = {};
+            }
+            if (!imageMapping[stateName][placeName]) {
+              imageMapping[stateName][placeName] = [];
+            }
+            imageMapping[stateName][placeName].push(imageUrl);
+          }
+        });
+
+        setImageMapping(imageMapping);
+      } catch (error) {
+        console.error("Error fetching image mapping from Google Sheets:", error);
+      }
+    };
+
+    fetchImageMapping();
+
+    // Load favorites from AsyncStorage
     const loadFavorites = async () => {
       try {
-        // Choose the favorites key based on the current language
         const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
         const storedFavorites = await AsyncStorage.getItem(favoritesKey);
         
         if (storedFavorites) {
-          setFavorites(JSON.parse(storedFavorites));  // Load favorites into state
+          setFavorites(JSON.parse(storedFavorites));
         } else {
-          setFavorites([]); // No favorites yet
+          setFavorites([]);
         }
       } catch (error) {
         console.error("Failed to load favorites:", error);
       }
     };
 
-    loadFavorites();  // Load favorites when screen is mounted or language is changed
-  }, [language]);  // Trigger the effect whenever the language changes
+    loadFavorites();
+  }, [language]);
 
-  // Function to handle navigation to the PlaceDetails screen when a favorite is clicked
-  const handlePlaceClick = (placeName) => {
-    // Navigate to the PlaceDetails screen and pass the place name as a parameter
-    navigation.navigate('PlaceDetails', { placeName, language });
+  // Function to get the translated place name based on the current language
+  const getTranslatedPlaceName = (placeName) => {
+    // Iterate through the imageMapping object to find the translated place name
+    for (const stateName in imageMapping) {
+      if (imageMapping[stateName][placeName]) {
+        return placeName; // The place name is already in the correct language
+      }
+    }
+    return placeName; // Fallback to the original place name if not found
   };
 
-  // Function to handle toggling the favorite status (add/remove) of a place
+  // Function to handle toggling the favorite status
   const handleToggleFavorite = async (placeName) => {
     try {
       let updatedFavorites;
 
-      // If the place is already in favorites, remove it
       if (favorites.includes(placeName)) {
-        updatedFavorites = favorites.filter(item => item !== placeName);
+        updatedFavorites = favorites.filter((name) => name !== placeName);
       } else {
-        // If the place is not in favorites, add it
         updatedFavorites = [...favorites, placeName];
       }
 
-      setFavorites(updatedFavorites);  // Update the favorites state
+      setFavorites(updatedFavorites);
 
-      // Save the updated list to AsyncStorage based on the current language
       const favoritesKey = language === 'en' ? 'favorites_en' : 'favorites_hi';
       await AsyncStorage.setItem(favoritesKey, JSON.stringify(updatedFavorites));
     } catch (error) {
@@ -65,11 +127,11 @@ const FavoritesScreen = () => {
     <View style={styles.cardContainer}>
       <TouchableOpacity 
         style={styles.favoriteCard} 
-        onPress={() => handlePlaceClick(item)} // Navigate to PlaceDetails on click
+        onPress={() => navigation.navigate('PlaceDetails', { placeName: item, language })}
       >
-        <Text style={styles.cardTitle}>{item}</Text>
+        <Text style={styles.cardTitle}>{getTranslatedPlaceName(item)}</Text>
         <TouchableOpacity
-          onPress={() => handleToggleFavorite(item)} // Toggle favorite on heart icon click
+          onPress={() => handleToggleFavorite(item)}
         >
           <HeartIcon size={24} color={favorites.includes(item) ? "red" : "gray"} />
         </TouchableOpacity>
@@ -83,23 +145,11 @@ const FavoritesScreen = () => {
         {language === 'en' ? 'Favorites' : 'पसंदीदा'}
       </Text>
 
-      {/* Language Toggle Button */}
-      <TouchableOpacity
-        style={styles.toggleButton}
-        onPress={toggleLanguage}
-      >
-        <Text style={styles.toggleButtonText}>
-          {language === 'en' ? 'HI' : 'EN'}
-        </Text>
-      </TouchableOpacity>
-
-      {/* Display no favorites message if the list is empty */}
       {favorites.length === 0 ? (
         <Text style={styles.noFavoritesText}>
           {language === 'en' ? 'No Favorites Yet' : 'अभी तक कोई पसंदीदा नहीं'}
         </Text>
       ) : (
-        // Display favorites list if there are any
         <FlatList
           data={favorites}
           renderItem={renderFavoriteCard}
@@ -153,20 +203,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginRight: 10,
-  },
-  toggleButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    zIndex: 1,
-  },
-  toggleButtonText: {
-    color: "#fff",
-    fontSize: 16,
   },
   noFavoritesText: {
     fontSize: 18,

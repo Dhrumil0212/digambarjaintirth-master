@@ -316,7 +316,11 @@ const PlaceDetails = ({ route }) => {
         )}
       </ScrollView>
 
-      {/* YouTube Video Slider */}
+    
+
+      <View style={styles.infoContainer}>
+        {renderPlaceData()}
+          {/* YouTube Video Slider */}
       {youtubeLinks.length > 0 && (
         <ScrollView horizontal style={styles.videoSlider}>
           {youtubeLinks.map((link, index) => (
@@ -331,9 +335,6 @@ const PlaceDetails = ({ route }) => {
           ))}
         </ScrollView>
       )}
-
-      <View style={styles.infoContainer}>
-        {renderPlaceData()}
         {placeData[0]?.[2] && placeData[0]?.[3] && (
           <TouchableOpacity style={styles.mapContainer} onPress={handleMapPress}>
             <Text style={styles.mapText}>
