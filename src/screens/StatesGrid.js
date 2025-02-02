@@ -258,8 +258,8 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
   },
   listWrapper: {
-    paddingTop: hp(3),
-    paddingBottom: hp(2),
+    paddingTop: hp(2),
+    paddingBottom: hp(3),
   },
   grid: {
     alignItems: "center",
@@ -287,10 +287,13 @@ const styles = StyleSheet.create({
   },
   cardContainerList: {
     width: "100%",
-    height: hp(4.5),
+    height: hp(5.5),
     borderRadius: wp(2),
     backgroundColor: "#f1f1f1",
     marginBottom: hp(0.5),
+    marginRight: hp(1.5),
+    // flexWrap:"wrap",
+    textAlign:"center",
     justifyContent: "center",
     shadowOpacity: 0,
     elevation: 0,
