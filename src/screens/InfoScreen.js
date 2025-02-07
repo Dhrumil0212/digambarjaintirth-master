@@ -23,13 +23,7 @@ const InfoScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Main Developer's Contact Info */}
         <Text style={styles.header}>Contact Information</Text>
-        <View style={styles.contactInfoContainer}>
-          <View style={styles.contactTextContainer}>
-            <Text style={styles.developerName}>ध्रुमिल जैन</Text>
-            <Text style={styles.developerEmail}>Email: dhrumil0212@gmail.com</Text>
-          </View>
-        </View>
-
+        
         {/* Vertical Column of the First Two Images (Centered) */}
         <View style={styles.verticalGrid}>
           {otherDevelopers.slice(0, 1).map((item) => (
@@ -67,6 +61,12 @@ const InfoScreen = () => {
           contentContainerStyle={styles.photoGrid}
           showsHorizontalScrollIndicator={false} // Optional: hides the scroll indicator
         />
+<View style={styles.contactInfoContainer}>
+          <View style={styles.contactTextContainer}>
+            <Text style={styles.developerName}>निर्माता: ध्रुमिल जैन</Text>
+            <Text style={styles.developerEmail}>Email: dhrumil0212@gmail.com</Text>
+          </View>
+        </View>
 
         {/* Additional Text after the horizontal grid */}
         <Text style={styles.additionalText}>
@@ -105,7 +105,8 @@ const styles = StyleSheet.create({
   contactInfoContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    
+    marginTop: 20,
     alignItems: 'center',
   },
   contactTextContainer: {
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   developerName: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
   },
