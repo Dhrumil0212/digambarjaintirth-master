@@ -75,3 +75,4 @@ yarn-error.*
 *.tsbuildinfo
 
 # @end expo-cli
+service-account-file.json
