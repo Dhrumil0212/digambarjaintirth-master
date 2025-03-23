@@ -1,48 +1,59 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
-import { ZoomableView } from '@dudigital/react-native-zoomable-view'; // Import ZoomableView
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+import { Image, useWindowDimensions } from 'react-native';
+import {
+  fitContainer,
+  ResumableZoom,
+  useImageResolution,
+} from 'react-native-zoom-toolkit';
 
-const { width, height } = Dimensions.get('window'); // Get screen dimensions
+const { width, height } = Dimensions.get('window');
+
+const ZoomableImage = ({ uri }) => {
+  const { isFetching, resolution } = useImageResolution({ uri });
+
+  if (isFetching || resolution === undefined) {
+    return null; // Show a loading indicator or placeholder if needed
+  }
+
+  const size = fitContainer(resolution.width / resolution.height, {
+    width,
+    height,
+  });
+
+  return (
+    <ResumableZoom maxScale={resolution}>
+      <Image source={{ uri }} style={{ ...size }} resizeMethod="scale" />
+    </ResumableZoom>
+  );
+};
 
 const YearDetailScreen = ({ route, navigation }) => {
   const { yearData } = route.params; // Get the year data passed from CalendarScreen
-  
+
   // State to track whether the front or back image is displayed
   const [showFront, setShowFront] = useState(true);
 
   // Function to toggle the image between front and back
   const toggleImage = () => {
-    setShowFront(prevState => !prevState); // Toggle the state between true and false
+    setShowFront((prevState) => !prevState); // Toggle the state between true and false
   };
 
   return (
     <View style={styles.container}>
       {/* Back button */}
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
 
-      {/* ScrollView for images */}
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {yearData.calendar_data.map((item, index) => (
-          <View key={index} style={styles.card}>
-            {/* Pinch-to-zoom enabled Image using ZoomableView */}
-            <ZoomableView
-              maxZoom={2} // Maximum zoom level
-              minZoom={1} // Minimum zoom level (no zoom)
-              zoomStep={0.5} // Zoom step when pinching
-              initialZoom={1} // Initial zoom level
-            >
-              <Image 
-                source={{ uri: showFront ? item.front_url : item.back_url }} 
-                style={styles.image} 
-              />
-            </ZoomableView>
-          </View>
-        ))}
-      </ScrollView>
+      {/* Display the front or back image based on the state */}
+      <ZoomableImage uri={showFront ? yearData.calendar_data[0].front_url : yearData.calendar_data[0].back_url} />
 
       {/* Button to toggle between front and back images */}
       <TouchableOpacity onPress={toggleImage} style={styles.toggleButton}>
@@ -54,6 +65,7 @@ const YearDetailScreen = ({ route, navigation }) => {
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -71,22 +83,6 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#fff',
     fontSize: 16,
-  },
-  scrollContainer: {
-    alignItems: 'center', // Center images horizontally
-    justifyContent: 'center',
-    marginTop: 50, // Allow space for the back button
-  },
-  card: {
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  image: {
-    width: width, // Make image width equal to the screen width
-    height: height, // Make image height equal to the screen height
-    resizeMode: 'contain', // Ensures the image fits within the screen without being cropped
   },
   toggleButton: {
     position: 'absolute',
