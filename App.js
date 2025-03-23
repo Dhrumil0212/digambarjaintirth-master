@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; // Import Bottom Tabs
 import { Ionicons } from 'react-native-vector-icons'; // For icons
 import { LanguageProvider, useLanguage } from './src/services/LanguageContext'; // Import language context
 import { SearchProvider } from './src/services/SearchContext'; // Import SearchContext for global search
-
+import { View, Text, Image, TouchableOpacity, FlatList, TextInput, StyleSheet } from 'react-native';
 // Import unified screens
 import StatesGrid from './src/screens/StatesGrid'; // Unified StatesGrid
 import PlacesGrid from './src/screens/PlacesGrid'; // Unified PlacesGrid
@@ -15,9 +15,17 @@ import PlaceDetails from './src/screens/PlaceDetails'; // Unified PlaceDetails
 import FavoritesScreen from './src/screens/FavoritesScreen'; // Unified FavoritesScreen
 import InfoScreen from './src/screens/InfoScreen'; // Unified InfoScreen
 
+// Import Calendar Screen
+import CalendarScreen from './src/screens/CalendarScreen'; // Your Calendar screen
+import YearDetailScreen from './src/screens/YearDetailScreen'; // Your Calendar screen
+
+// Import Custom Drawer
+import DrawerMenu from './src/screens/DrawerMenu'; // Custom Drawer component
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator(); // Create Bottom Tab Navigator
 
+// Tab Navigator
 const BottomTabs = () => {
   return (
     <Tab.Navigator 
@@ -43,6 +51,7 @@ const BottomTabs = () => {
   );
 };
 
+// Main App Navigator
 const AppNavigator = () => {
   const { language } = useLanguage(); // Access language context
 
@@ -67,16 +76,33 @@ const AppNavigator = () => {
         component={PlaceDetails}
         key={language === 'en' ? 'PlaceDetails-en' : 'PlaceDetails-hi'}
       />
+      {/* Add Calendar Screen to Stack Navigator */}
+      <Stack.Screen name="CalendarScreen" component={CalendarScreen} />
+      <Stack.Screen name="YearDetailScreen" component={YearDetailScreen} />
+
     </Stack.Navigator>
   );
 };
 
+// Main App Component
 const App = () => {
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
+  const toggleDrawer = () => setDrawerVisible(!drawerVisible);
+
   return (
     <LanguageProvider>
       <SearchProvider>
         <NavigationContainer>
+          {/* Show the custom drawer */}
+          <DrawerMenu isVisible={drawerVisible} onClose={toggleDrawer} />
+          
+          {/* Tab Navigator to handle Home, Favorites, and Info */}
           <BottomTabs />
+
+          {/* Hamburger Icon for Drawer Toggle */}
+          
+          
         </NavigationContainer>
       </SearchProvider>
     </LanguageProvider>

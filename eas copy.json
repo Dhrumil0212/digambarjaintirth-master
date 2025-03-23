@@ -13,10 +13,10 @@
     },
     "production": {
       "android": {
-        "buildType": "app-bundle",
+        "buildType": "apk",
         "image": "latest"
       },
-      "autoIncrement": true 
+      "autoIncrement": false 
     }
   },
   "submit": {
