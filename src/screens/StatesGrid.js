@@ -9,7 +9,7 @@ import { getStates as getStatesHin, getPlacesByState as getPlacesByStateHin } fr
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useSearch } from '../services/SearchContext';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
-import CustomDrawer from './DrawerMenu'; // Import the custom drawer
+import CustomDrawer from './DrawerMenu';
 
 const StatesGrid = () => {
   const { language, toggleLanguage } = useLanguage();
@@ -19,25 +19,21 @@ const StatesGrid = () => {
   const [allPlaces, setAllPlaces] = useState([]);
   const [filteredPlaces, setFilteredPlaces] = useState([]);
   const [imageMapping, setImageMapping] = useState({});
-  const [isDrawerVisible, setIsDrawerVisible] = useState(false); // State to control drawer visibility
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const navigation = useNavigation();
 
-  // Fetch states, places, and image mapping data when component mounts
   useEffect(() => {
     const fetchStatesAndPlaces = async () => {
       try {
-        // Fetch image mapping data
         const imageMappingData = await fetchImageMappingFromGoogleSheets(language);
         setImageMapping(imageMappingData);
 
-        // Fetch states data based on language
         const getStates = language === 'en' ? getStatesEng : getStatesHin;
         const getPlacesByState = language === 'en' ? getPlacesByStateEng : getPlacesByStateHin;
 
         const statesData = await getStates();
         const sortedStates = statesData.sort((a, b) => a.name.localeCompare(b.name));
 
-        // Update states with images
         const updatedStates = sortedStates.map((state) => ({
           ...state,
           image: imageMappingData[state.name]?.image || null,
@@ -46,16 +42,15 @@ const StatesGrid = () => {
         setStates(updatedStates);
         setFilteredStates(updatedStates);
 
-        // Fetch unique places from all states
         let allPlacesSet = new Set();
         for (const state of statesData) {
           const placesData = await getPlacesByState(state.name);
           placesData.forEach((place) => {
-            allPlacesSet.add(place); // Ensure uniqueness
+            allPlacesSet.add(place);
           });
         }
 
-        setAllPlaces(Array.from(allPlacesSet)); // Convert Set to array
+        setAllPlaces(Array.from(allPlacesSet));
       } catch (error) {
         console.error("Error fetching states, places, and image mapping:", error);
       }
@@ -64,18 +59,16 @@ const StatesGrid = () => {
     fetchStatesAndPlaces();
   }, [language]);
 
-  // Filter states and places based on search query
   useEffect(() => {
     if (searchQuery) {
       const filteredPlacesByQuery = allPlaces.filter((place) =>
         place.toLowerCase().includes(searchQuery.toLowerCase())
       );
-
       setFilteredPlaces(filteredPlacesByQuery);
-      setFilteredStates([]); // Clear states when search is present
+      setFilteredStates([]);
     } else {
       setFilteredStates(states);
-      setFilteredPlaces([]); // Clear places when search is empty
+      setFilteredPlaces([]);
     }
   }, [searchQuery, states, allPlaces]);
 
@@ -83,22 +76,18 @@ const StatesGrid = () => {
     toggleLanguage();
   };
 
-  // Fetch image mapping data from Google Sheets
   const fetchImageMappingFromGoogleSheets = async (language) => {
     try {
-      const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE"; // Your API key 
+      const apiKey = "AIzaSyC1Fv_yJ-w7ifM4HIYr0GOG7Z5472GW1ZE";
       const spreadsheetId = "1CIfzUskea7CaZg9H5f8bi_ABjPMVrgUF29tmyeXkXyg";
-      const range = "ImageMapping!A1:Z100000"; 
+      const range = "ImageMapping!A1:Z100000";
 
       const response = await fetch(
         `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${apiKey}`
       );
       const data = await response.json();
 
-      if (!data.values) {
-        console.error("No data found in the Google Sheets response");
-        return {};
-      }
+      if (!data.values) return {};
 
       const imageMapping = {};
       const headerRow = data.values[0];
@@ -106,10 +95,7 @@ const StatesGrid = () => {
       const rajyaColumnIndex = headerRow.indexOf("Rajya");
       const imageColumnIndex = headerRow.indexOf("Image");
 
-      if (stateColumnIndex === -1 || imageColumnIndex === -1) {
-        console.error("Required columns not found in the sheet.");
-        return {};
-      }
+      if (stateColumnIndex === -1 || imageColumnIndex === -1) return {};
 
       data.values.slice(1).forEach((row) => {
         const stateName = language === 'en' ? row[stateColumnIndex] : row[rajyaColumnIndex];
@@ -126,13 +112,10 @@ const StatesGrid = () => {
     }
   };
 
-  // Render state card
   const renderStateCard = ({ item }) => (
     <TouchableOpacity
       style={[styles.cardContainer, searchQuery ? styles.cardContainerList : styles.cardContainerGrid]}
-      onPress={() =>
-        navigation.navigate("PlacesGrid", { stateName: item.name, language })
-      }
+      onPress={() => navigation.navigate("PlacesGrid", { stateName: item.name, language })}
     >
       {item.image ? (
         <Image source={{ uri: item.image }} style={styles.cardImage} />
@@ -147,16 +130,13 @@ const StatesGrid = () => {
     </TouchableOpacity>
   );
 
-  // Render place card
   const renderPlaceCard = ({ item }) => (
     <TouchableOpacity
-      style={[styles.cardContainer, searchQuery ? styles.cardContainerList : styles.cardContainerGrid]}
-      onPress={() =>
-        navigation.navigate("PlaceDetails", { placeName: item, language })
-      }
+      style={[styles.cardContainer, styles.cardContainerList]}
+      onPress={() => navigation.navigate("PlaceDetails", { placeName: item, language })}
     >
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{item}</Text>
+        <Text style={styles.placeCardTitle}>{item}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -165,33 +145,34 @@ const StatesGrid = () => {
     <View style={styles.container}>
       <StatusBar style="dark" />
       <SafeAreaView style={styles.safeAreaView}>
-        {/* Hamburger Icon */}
-        <TouchableOpacity onPress={() => setIsDrawerVisible(true)} style={styles.hamburgerIcon}>
-          <MaterialCommunityIcons name="menu" size={30} color="#fff" />
-        </TouchableOpacity>
+        <View style={styles.header}>
+          <TouchableOpacity 
+            onPress={() => setIsDrawerVisible(true)} 
+            style={styles.hamburgerIcon}
+          >
+            <MaterialCommunityIcons name="menu" size={wp(6)} color="#fff" />
+          </TouchableOpacity>
 
-        {/* Heading */}
-        <Text style={styles.heading}>{language === 'en' ? 'Bharat' : 'भारत'}</Text>
+          <Text style={styles.heading}>{language === 'en' ? 'Bharat' : 'भारत'}</Text>
 
-        {/* Language Toggle Button */}
-        <TouchableOpacity
-          style={styles.toggleButton}
-          onPress={handleLanguageToggle}
-        >
-          <Text style={styles.toggleButtonText}>
-            {language === 'en' ? 'HI' : 'EN'}
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={handleLanguageToggle}
+          >
+            <Text style={styles.toggleButtonText}>
+              {language === 'en' ? 'HI' : 'EN'}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-        {/* Search Bar */}
         <TextInput
           style={styles.searchInput}
           placeholder={language === 'en' ? "Search" : "राज्य या स्थान खोजें"}
+          placeholderTextColor="#999"
           value={searchQuery}
           onChangeText={handleSearch}
         />
 
-        {/* Conditionally render either list or grid */}
         {searchQuery ? (
           <View>
             {filteredPlaces.slice(0, 5).length > 0 && (
@@ -216,7 +197,6 @@ const StatesGrid = () => {
         )}
       </SafeAreaView>
 
-      {/* Custom Drawer */}
       <CustomDrawer
         isVisible={isDrawerVisible}
         onClose={() => setIsDrawerVisible(false)}
@@ -229,95 +209,81 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
-    justifyContent: 'flex-start',
-    paddingHorizontal: wp(4),
   },
   safeAreaView: {
     flex: 1,
+    paddingHorizontal: wp(4),
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: hp(2),
+    marginBottom: hp(1),
   },
   heading: {
     fontSize: wp(6),
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: hp(4),
     color: '#343a40',
+    textAlign: 'center',
+    flex: 1,
   },
   hamburgerIcon: {
-    position: 'absolute',
-    top: hp(5),
-    height: hp(5),
-    zIndex: 1,
     backgroundColor: '#007bff',
-    marginTop: hp(1),
-    padding: 3,
+    padding: wp(2),
+    borderRadius: wp(1),
     justifyContent: 'center',
-    borderRadius: 5,
+    alignItems: 'center',
   },
   toggleButton: {
-    position: 'absolute',
-    height: hp(5),
-    top: hp(5),
-    right: wp(4),
     backgroundColor: '#007bff',
-    marginTop: hp(1),
-    padding: 10,
-    borderRadius: 5,
+    paddingHorizontal: wp(3),
+    paddingVertical: wp(2),
+    borderRadius: wp(1),
+    justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1,
   },
   toggleButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: wp(4.5),
     fontWeight: 'bold',
   },
   searchInput: {
     backgroundColor: '#fff',
-    borderRadius: 5,
-    padding: 10,
-    marginVertical: hp(2),
+    borderRadius: wp(1),
+    padding: wp(3),
+    marginVertical: hp(1),
     borderWidth: 1,
     borderColor: '#ddd',
     fontSize: wp(4),
+    color: '#333',
   },
   listWrapper: {
-    paddingTop: hp(2),
-    paddingBottom: hp(3),
+    paddingBottom: hp(2),
   },
   grid: {
-    alignItems: 'center',
-    justifyContent: 'flex-start',
     paddingBottom: hp(2),
   },
   cardContainer: {
     backgroundColor: '#fff',
-    margin: wp(2),
-    justifyContent: 'space-between',
-    marginTop: hp(1),
-    marginBottom: hp(1),
-  },
-  cardContainerGrid: {
-    borderRadius: wp(3),
-    width: wp(42),
-    height: hp(27),
+    borderRadius: wp(2),
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowRadius: wp(2),
+    shadowRadius: wp(1),
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
-    justifyContent: 'space-between',
+  },
+  cardContainerGrid: {
+    width: wp(42),
+    height: hp(27),
+    margin: wp(2),
   },
   cardContainerList: {
     width: '100%',
-    height: hp(5.5),
-    borderRadius: wp(2),
-    backgroundColor: '#f1f1f1',
-    marginBottom: hp(0.5),
-    marginRight: hp(1.5),
+    height: hp(6),
+    marginBottom: hp(1),
     justifyContent: 'center',
-    textAlign: 'center',
-    shadowOpacity: 0,
-    elevation: 0,
   },
   cardImage: {
     width: '100%',
@@ -333,20 +299,33 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     color: '#6c757d',
-    fontSize: wp(4),
+    fontSize: wp(3.5),
+    fontWeight: 'bold',
+
   },
   cardContent: {
-    flexDirection: 'column',
+    padding: wp(2),
     justifyContent: 'center',
     alignItems: 'center',
-    padding: wp(2),
-    marginBottom: hp(1),
   },
   cardTitle: {
     fontSize: wp(4.5),
     fontWeight: '600',
     color: '#343a40',
     textAlign: 'center',
+    fontWeight: 'bold',
+    maxWidth: '100%',
+    marginTop:hp(1)
+
+
+
+  },
+  placeCardTitle: {
+    fontSize: wp(4.5),
+    fontWeight: '600',
+    color: '#343a40',
+    textAlign: 'center',
+    paddingHorizontal: wp(2),
   },
 });
 

@@ -10,7 +10,6 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@dudigital/react-native-zoomable-view": "^1.1.4",
     "@expo/webpack-config": "^19.0.0",
     "@react-native-async-storage/async-storage": "1.18.2",
     "@react-native-community/netinfo": "9.3.10",
@@ -20,6 +19,7 @@
     "@react-navigation/native-stack": "^6.9.13",
     "@react-navigation/stack": "^6.4.1",
     "expo": "~49.0.15",
+    "expo-cli": "^6.3.12",
     "expo-dev-client": "~2.4.13",
     "expo-linear-gradient": "~12.3.0",
     "expo-splash-screen": "^0.20.5",
@@ -31,8 +31,10 @@
     "react-native-fast-image": "^8.6.3",
     "react-native-gesture-handler": "~2.12.0",
     "react-native-heroicons": "^3.2.0",
+    "react-native-image-pan-zoom": "^2.1.12",
     "react-native-image-slider-box": "^2.0.7",
     "react-native-image-zoom-viewer": "^3.0.1",
+    "react-native-pager-view": "^6.7.1",
     "react-native-paper": "^5.13.1",
     "react-native-reanimated": "~3.3.0",
     "react-native-responsive-screen": "^1.4.2",
@@ -46,7 +48,6 @@
     "react-native-webview": "13.2.2",
     "react-native-youtube-iframe": "^2.3.0",
     "react-native-zoom-toolkit": "^2.1.4",
-    "react-native-zoomable-view": "^0.3.1",
     "tailwindcss": "^3.3.2"
   },
   "devDependencies": {

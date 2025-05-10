@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f4f4',
   },
   heading: {
+    marginTop: 60,
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
